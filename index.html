@@ -892,7 +892,17 @@ select option{background:var(--sur);}
           <div style="font-size:11px;color:var(--hi);margin-top:4px;">Weekly share: <span id="s-wk" style="color:var(--bl)">₱0</span></div>
         </div>
         <div class="card"><div class="ct2">Emergency fund target</div><input type="number" id="s-ef-tgt" value="36000" oninput="updEF()"><div style="font-size:11px;color:var(--mu);margin-top:5px;">Recommended: ₱36,000 (6 months)</div></div>
-        <div class="ver">v5.5 · GenSan Budget App · Final Edition · 2026</div>
+        <!-- EXPORT / IMPORT -->
+        <div class="card">
+          <div class="ct2">Transfer data to another device</div>
+          <p style="font-size:12px;color:var(--mu);margin-bottom:12px;line-height:1.6;">Use this to move all your data — history, EF, loans, spending, goals — from this device to another. Export here, import there.</p>
+          <button class="btn btn-bl" onclick="exportData()" style="margin-bottom:8px;">Export all my data</button>
+          <button class="btn btn-gh" onclick="document.getElementById('import-file').click()">Import data from file</button>
+          <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importData(this)">
+          <div id="import-status" style="font-size:12px;margin-top:8px;"></div>
+        </div>
+
+        <div class="ver">v5.6 · GenSan Budget App · Final Edition · 2026</div>
       </div>
 
       <!-- ADD FIXED EXPENSE MODAL -->
@@ -1908,6 +1918,50 @@ function withdrawEF(){
   updEF();
   showToast(p(amt)+' withdrawn from EF','warn');
   setEFMode('add');
+}
+
+// EXPORT / IMPORT
+function exportData(){
+  var keys=['hist','ef','loans','bills','sp','goals','invests','sideincome','fixedExps','bills_paid','bills_reset_mo','sp_log'];
+  var data={profile:CUR,exportDate:new Date().toISOString(),version:'5.6',data:{}};
+  keys.forEach(function(k){
+    var val=localStorage.getItem('bgv5_'+CUR+'_'+k);
+    if(val) data.data[k]=JSON.parse(val);
+  });
+  var json=JSON.stringify(data,null,2);
+  var blob=new Blob([json],{type:'application/json'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');
+  var today=new Date().toLocaleDateString('en-PH',{year:'numeric',month:'2-digit',day:'2-digit'}).replace(/\//g,'-');
+  a.href=url;
+  a.download='budget-data-'+today+'.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Data exported! Send this file to your other device.','ok','📤');
+}
+
+function importData(input){
+  var file=input.files[0];
+  if(!file){return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!data.data){showToast('Invalid file format','warn');return;}
+      var keys=Object.keys(data.data);
+      keys.forEach(function(k){
+        localStorage.setItem('bgv5_'+CUR+'_'+k,JSON.stringify(data.data[k]));
+      });
+      document.getElementById('import-status').innerHTML='<span style="color:var(--gr);font-weight:600;">✓ Data imported successfully! '+keys.length+' records loaded.</span>';
+      showToast('Data imported! Reloading app...','ok','📥');
+      setTimeout(function(){initApp();},1200);
+    }catch(err){
+      document.getElementById('import-status').innerHTML='<span style="color:var(--rd);">Error reading file. Make sure it is a valid budget export file.</span>';
+      showToast('Import failed — invalid file','warn');
+    }
+  };
+  reader.readAsText(file);
+  input.value='';
 }
 
 // TOAST + ANIMATIONS
