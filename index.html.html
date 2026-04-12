@@ -1,0 +1,1975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Budget App v5 — GenSan</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1117;--sur:#1a1d27;--sur2:#22263a;--sur3:#2a2f45;
+  --bd:rgba(255,255,255,0.08);--bd2:rgba(255,255,255,0.14);
+  --tx:#f0f0f5;--mu:#8b8fa8;--hi:#555870;
+  --bl:#4f8ef7;--bl-bg:rgba(79,142,247,0.12);
+  --gr:#3ecf8e;--gr-bg:rgba(62,207,142,0.12);
+  --am:#f5a623;--am-bg:rgba(245,166,35,0.12);
+  --rd:#f26b6b;--rd-bg:rgba(242,107,107,0.12);
+  --pu:#a78bfa;--pu-bg:rgba(167,139,250,0.12);
+  --pk:#f472b6;--pk-bg:rgba(244,114,182,0.12);
+  --te:#2dd4bf;--te-bg:rgba(45,212,191,0.12);
+  --or:#fb923c;--or-bg:rgba(251,146,60,0.12);
+  --r:14px;--rs:8px;
+}
+.lm{--bg:#f4f5fa;--sur:#fff;--sur2:#eef0f7;--bd:rgba(0,0,0,0.07);--bd2:rgba(0,0,0,0.13);--tx:#1a1d27;--mu:#6b7080;--hi:#9ca3b0;--bl:#2563eb;--bl-bg:rgba(37,99,235,0.09);--gr:#16a34a;--gr-bg:rgba(22,163,74,0.09);--am:#d97706;--am-bg:rgba(217,119,6,0.09);--rd:#dc2626;--rd-bg:rgba(220,38,38,0.09);--pu:#7c3aed;--pu-bg:rgba(124,58,237,0.09);--pk:#db2777;--pk-bg:rgba(219,39,119,0.09);--te:#0d9488;--te-bg:rgba(13,148,136,0.09);--or:#ea580c;--or-bg:rgba(234,88,12,0.09);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;font-size:14px;line-height:1.6;transition:background .3s,color .3s;}
+.app{max-width:480px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;}
+
+/* PROFILE */
+#prof-screen{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:28px;overflow-y:auto;}
+.prof-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:8px;cursor:pointer;transition:border-color .2s;width:100%;max-width:360px;}
+.prof-item:hover{border-color:var(--bl);}
+.prof-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;background:var(--sur2);flex-shrink:0;}
+
+/* MODE BAR */
+.mode-bar{display:flex;background:var(--sur);border-bottom:1px solid var(--bd);}
+.mode-btn{flex:1;padding:12px;font-size:12px;font-family:'Sora',sans-serif;font-weight:600;color:var(--mu);background:transparent;border:none;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;}
+.mode-btn.active{color:var(--bl);border-bottom-color:var(--bl);}
+
+/* HEADER */
+.hdr{padding:12px 16px 0;position:sticky;top:0;background:var(--bg);z-index:100;border-bottom:1px solid var(--bd);}
+.hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.app-nm{font-size:15px;font-weight:700;letter-spacing:-.3px;}
+.app-ver{font-size:10px;color:var(--mu);font-family:DM Mono,monospace;margin-top:1px;}
+.dot{width:6px;height:6px;background:var(--gr);border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.hdr-r{display:flex;align-items:center;gap:5px;}
+.sm-btn{background:var(--sur2);border:1px solid var(--bd2);border-radius:20px;padding:4px 9px;font-size:11px;font-family:'Sora',sans-serif;color:var(--mu);cursor:pointer;}
+.nav{display:flex;overflow-x:auto;scrollbar-width:none;}
+.nav::-webkit-scrollbar{display:none;}
+.nb{flex-shrink:0;padding:9px 11px;font-size:11px;font-family:'Sora',sans-serif;font-weight:500;color:var(--mu);background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.nb.active{color:var(--bl);border-bottom-color:var(--bl);}
+
+/* CONTENT */
+.ct{flex:1;padding:12px 16px 60px;}
+.sec{display:none;}.sec.active{display:block;}
+.card{background:var(--sur);border:1px solid var(--bd);border-radius:var(--r);padding:13px;margin-bottom:10px;}
+.ct2{font-size:11px;font-weight:600;color:var(--mu);text-transform:uppercase;letter-spacing:.07em;margin-bottom:11px;}
+label{font-size:12px;color:var(--mu);display:block;margin-bottom:3px;font-weight:500;}
+input,select{width:100%;background:var(--sur2);border:1px solid var(--bd2);border-radius:var(--rs);color:var(--tx);font-family:'Sora',sans-serif;font-size:13px;padding:9px 11px;outline:none;transition:border-color .2s;}
+input:focus,select:focus{border-color:var(--bl);}
+select option{background:var(--sur);}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px;}
+.btn{width:100%;padding:11px;border:none;border-radius:var(--rs);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .2s,transform .1s;margin-top:3px;}
+.btn:active{transform:scale(.98);opacity:.9;}
+.btn-bl{background:var(--bl);color:#fff;}
+.btn-gr{background:var(--gr);color:#0a2a1a;}
+.btn-rd{background:var(--rd);color:#fff;}
+.btn-gh{background:transparent;color:var(--mu);border:1px solid var(--bd2);}
+.bdg{display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;}
+.b-ok{background:var(--gr-bg);color:var(--gr);}
+.b-w{background:var(--am-bg);color:var(--am);}
+.b-d{background:var(--rd-bg);color:var(--rd);}
+.b-i{background:var(--bl-bg);color:var(--bl);}
+.b-p{background:var(--pu-bg);color:var(--pu);}
+.b-t{background:var(--te-bg);color:var(--te);}
+.b-g{background:var(--sur2);color:var(--mu);}
+.met{background:var(--sur2);border-radius:var(--rs);padding:10px;text-align:center;}
+.ml{font-size:10px;color:var(--mu);font-weight:500;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;}
+.mv{font-size:16px;font-weight:700;font-family:DM Mono,monospace;}
+.ms{font-size:10px;color:var(--hi);margin-top:1px;}
+.bar-wrap{display:flex;height:7px;border-radius:4px;overflow:hidden;margin:7px 0 12px;gap:2px;}
+.bseg{border-radius:2px;transition:width .4s ease;}
+.alc{border-radius:var(--rs);padding:12px;margin-bottom:8px;}
+.alc-h{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:7px;}
+.alc-t{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;}
+.alc-a{font-size:18px;font-weight:700;font-family:DM Mono,monospace;}
+.ar{display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px solid rgba(128,128,128,.08);}
+.ar:last-child{border-bottom:none;}
+.av{font-weight:600;font-family:DM Mono,monospace;}
+.alt{border-left:3px solid;border-radius:0 var(--rs) var(--rs) 0;padding:8px 12px;margin-bottom:8px;font-size:12px;line-height:1.5;}
+.a-ok{border-color:var(--gr);background:var(--gr-bg);color:var(--gr);}
+.a-w{border-color:var(--am);background:var(--am-bg);color:var(--am);}
+.a-d{border-color:var(--rd);background:var(--rd-bg);color:var(--rd);}
+.a-i{border-color:var(--bl);background:var(--bl-bg);color:var(--bl);}
+.a-p{border-color:var(--pu);background:var(--pu-bg);color:var(--pu);}
+.dvd{height:1px;background:var(--bd);margin:9px 0;}
+.tr{display:flex;justify-content:space-between;align-items:center;padding-top:8px;margin-top:4px;border-top:1px solid var(--bd);font-weight:600;font-size:13px;}
+.emp{text-align:center;padding:18px 0;color:var(--hi);font-size:13px;}
+.ri{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--bd);font-size:13px;}
+.ri:last-child{border-bottom:none;}
+.rl{color:var(--mu);}
+.rv{font-weight:600;font-family:DM Mono,monospace;}
+.sl{display:flex;flex-direction:column;}
+.si{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--bd);}
+.si:last-child{border-bottom:none;}
+.sn{width:20px;height:20px;border-radius:50%;background:var(--bl-bg);color:var(--bl);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
+.st{flex:1;font-size:12px;color:var(--mu);line-height:1.5;}
+.st strong{color:var(--tx);font-weight:600;}
+.sv2{font-size:12px;font-weight:700;font-family:DM Mono,monospace;flex-shrink:0;}
+.ck{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--bd);}
+.ck:last-child{border-bottom:none;}
+.cb{width:18px;height:18px;border-radius:4px;border:2px solid var(--bd2);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .2s;}
+.cb.done{background:var(--gr);border-color:var(--gr);}
+.cb.done::after{content:'✓';color:#fff;font-size:10px;font-weight:700;}
+.ck-l{font-size:12px;line-height:1.5;flex:1;}
+.ck-l.sk{text-decoration:line-through;color:var(--mu);}
+.ck-s{font-size:10px;color:var(--hi);margin-top:1px;}
+.bk{display:inline-flex;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-top:3px;}
+.bk-m{background:rgba(255,183,77,.12);color:#ffb74d;}
+.bk-g{background:rgba(45,212,191,.12);color:#2dd4bf;}
+.bk-gw{background:rgba(79,142,247,.12);color:#4f8ef7;}
+.pw{background:var(--sur2);border-radius:6px;height:8px;overflow:hidden;margin:7px 0 4px;}
+.pf{height:8px;border-radius:6px;transition:width .5s ease;}
+.loan-item{background:var(--sur2);border-radius:var(--rs);padding:11px;margin-bottom:7px;border-left:3px solid var(--bd2);}
+.loan-item.overdue{border-left-color:var(--rd);}
+.loan-item.due-soon{border-left-color:var(--am);}
+.loan-item.ok{border-left-color:var(--gr);}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:8px;}
+.cd{min-height:32px;border-radius:5px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:3px 2px;font-size:11px;}
+.cd.today{background:var(--bl-bg);color:var(--bl);font-weight:700;}
+.cd.has-bill{background:var(--am-bg);}
+.cd.emp-d{opacity:.3;}
+.cd-dot{width:5px;height:5px;border-radius:50%;background:var(--am);margin-top:2px;}
+.cal-dh{text-align:center;font-size:10px;color:var(--mu);font-weight:600;padding:3px 0;}
+.mo-nav-r{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;}
+.chart-w{overflow-x:auto;padding-bottom:4px;}
+.bc{display:flex;align-items:flex-end;gap:5px;height:130px;padding:0 3px;}
+.bg2{display:flex;flex-direction:column;align-items:center;flex:1;}
+.bg2-bars{display:flex;gap:2px;align-items:flex-end;height:110px;}
+.bc-col{border-radius:3px 3px 0 0;min-width:9px;transition:height .4s;}
+.bc-lbl{font-size:9px;color:var(--mu);margin-top:3px;text-align:center;white-space:nowrap;}
+.int-r{text-align:center;padding:12px 0 5px;}
+.int-e{font-size:30px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);}
+.mp2-pj{background:var(--pu-bg);border-radius:var(--rs);padding:12px;margin-bottom:8px;}
+.mp2-b{font-size:26px;font-weight:700;font-family:DM Mono,monospace;color:var(--pu);margin-bottom:3px;}
+.mt-tgl{display:flex;background:var(--sur2);border-radius:var(--rs);padding:3px;margin-bottom:11px;}
+.mt-b{flex:1;padding:6px;text-align:center;font-size:12px;font-weight:600;border-radius:6px;cursor:pointer;transition:all .2s;color:var(--mu);border:none;background:transparent;font-family:'Sora',sans-serif;}
+.mt-b.active{background:var(--bl);color:#fff;}
+.hs-big{text-align:center;padding:12px 0 7px;}
+.hs-n{font-size:48px;font-weight:700;font-family:DM Mono,monospace;}
+.hs-l{font-size:12px;color:var(--mu);}
+.dti-w{text-align:center;padding:10px 0 5px;}
+.dti-n{font-size:32px;font-weight:700;font-family:DM Mono,monospace;}
+.bank-tip{border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;font-size:12px;line-height:1.6;}
+.ver{text-align:center;font-size:11px;color:var(--hi);padding:12px 0 5px;font-family:DM Mono,monospace;}
+/* TOAST */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--sur);border:1px solid var(--bd2);border-radius:var(--r);padding:11px 18px;font-size:13px;font-weight:600;color:var(--tx);z-index:9999;opacity:0;transition:all .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3);}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.toast.ok{border-color:var(--gr);color:var(--gr);}
+.toast.info{border-color:var(--bl);color:var(--bl);}
+.toast.warn{border-color:var(--am);color:var(--am);}
+
+
+/* ===== AI CHAT ===== */
+.chat-fab{position:fixed;bottom:24px;right:24px;width:56px;height:56px;border-radius:50%;background:var(--bl);color:#fff;border:none;font-size:22px;cursor:pointer;z-index:500;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(79,142,247,.4);transition:transform .2s;}
+.chat-fab:active{transform:scale(.94);}
+.chat-fab .notif{position:absolute;top:0;right:0;width:14px;height:14px;background:var(--rd);border-radius:50%;border:2px solid var(--bg);display:none;}
+.chat-panel{position:fixed;inset:0;z-index:800;display:none;flex-direction:column;background:var(--bg);}
+.chat-panel.open{display:flex;}
+.chat-hdr{padding:14px 16px;background:var(--sur);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.chat-av{width:38px;height:38px;border-radius:50%;background:var(--bl-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.chat-hdr-info{flex:1;}
+.chat-hdr-name{font-size:14px;font-weight:700;}
+.chat-hdr-status{font-size:11px;color:var(--gr);display:flex;align-items:center;gap:4px;}
+.chat-hdr-status::before{content:'';width:6px;height:6px;background:var(--gr);border-radius:50%;display:inline-block;}
+.chat-close{background:none;border:none;color:var(--mu);font-size:20px;cursor:pointer;padding:4px;}
+.chat-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.msg{max-width:85%;display:flex;flex-direction:column;gap:3px;}
+.msg.user{align-self:flex-end;align-items:flex-end;}
+.msg.ai{align-self:flex-start;align-items:flex-start;}
+.msg-bubble{padding:10px 13px;border-radius:14px;font-size:13px;line-height:1.6;}
+.msg.user .msg-bubble{background:var(--bl);color:#fff;border-bottom-right-radius:4px;}
+.msg.ai .msg-bubble{background:var(--sur);border:1px solid var(--bd);color:var(--tx);border-bottom-left-radius:4px;}
+.msg-time{font-size:10px;color:var(--hi);padding:0 4px;}
+.msg-typing{display:flex;gap:4px;align-items:center;padding:10px 13px;background:var(--sur);border:1px solid var(--bd);border-radius:14px;border-bottom-left-radius:4px;width:56px;}
+.typing-dot{width:7px;height:7px;border-radius:50%;background:var(--mu);animation:typing .9s infinite;}
+.typing-dot:nth-child(2){animation-delay:.15s;}
+.typing-dot:nth-child(3){animation-delay:.3s;}
+@keyframes typing{0%,60%,100%{transform:translateY(0);opacity:.5;}30%{transform:translateY(-5px);opacity:1;}}
+.chat-quick{padding:10px 16px 6px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.chat-quick::-webkit-scrollbar{display:none;}
+.q-chip{flex-shrink:0;padding:6px 11px;background:var(--sur);border:1px solid var(--bd2);border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;color:var(--mu);white-space:nowrap;transition:all .2s;}
+.q-chip:hover{border-color:var(--bl);color:var(--bl);}
+.chat-input-row{padding:10px 16px 20px;background:var(--sur);border-top:1px solid var(--bd);display:flex;gap:8px;flex-shrink:0;}
+.chat-input{flex:1;background:var(--sur2);border:1px solid var(--bd2);border-radius:22px;padding:10px 15px;font-family:'Sora',sans-serif;font-size:13px;color:var(--tx);outline:none;resize:none;max-height:100px;line-height:1.5;}
+.chat-input:focus{border-color:var(--bl);}
+.chat-send{width:40px;height:40px;border-radius:50%;background:var(--bl);border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;align-self:flex-end;transition:opacity .2s;}
+.chat-send:disabled{opacity:.4;}
+.chat-context-bar{padding:8px 16px;background:var(--sur2);border-bottom:1px solid var(--bd);font-size:11px;color:var(--mu);display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;}
+.chat-context-bar::-webkit-scrollbar{display:none;}
+.ctx-pill{background:var(--sur);border:1px solid var(--bd);border-radius:20px;padding:3px 9px;white-space:nowrap;font-size:10px;font-weight:600;color:var(--tx);}
+
+/* CELEBRATION */
+.cel{display:none;position:fixed;inset:0;background:var(--bg);z-index:9998;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;}
+.cel.show{display:flex;}
+.conf{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.cp{position:absolute;border-radius:2px;animation:fall linear infinite;}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0);opacity:1;}100%{transform:translateY(100vh) rotate(720deg);opacity:0;}}
+
+/* PUBLIC */
+.pub-hero{text-align:center;padding:18px 0 13px;}
+.pub-alc{border-radius:var(--rs);padding:13px;margin-bottom:8px;text-align:center;}
+.pub-row{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid rgba(128,128,128,.08);}
+.pub-row:last-child{border-bottom:none;}
+</style>
+</head>
+<body>
+
+<!-- CELEBRATION -->
+<div class="cel" id="cel">
+  <div class="conf" id="conf"></div>
+  <div style="position:relative;z-index:2;max-width:340px;">
+    <div style="font-size:48px;margin-bottom:8px;">🎉</div>
+    <div style="font-size:26px;font-weight:700;color:var(--gr);margin-bottom:5px;">DEBT FREE!</div>
+    <div style="font-size:13px;color:var(--mu);margin-bottom:16px;line-height:1.7;">Last loan paid May 7, 2026.<br>No more online lending. You made it.</div>
+    <div style="font-size:38px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);margin-bottom:14px;">₱2,753.34</div>
+    <div style="background:var(--gr-bg);border-radius:var(--r);padding:12px 16px;margin-bottom:18px;text-align:left;font-size:12px;">
+      <div style="color:var(--gr);font-weight:600;margin-bottom:5px;">Redeploy ₱2,753/month:</div>
+      <div style="color:var(--mu);line-height:2;">+₱1,500 → Emergency fund (Maribank)<br>+₱800 → Savings (Maribank)<br>+₱453 → Pag-IBIG MP2</div>
+    </div>
+    <button class="btn btn-gr" onclick="closeCel()">Let's build wealth now</button>
+  </div>
+</div>
+
+<!-- PROFILE SCREEN -->
+<div id="prof-screen">
+  <div style="font-size:40px;margin-bottom:10px;">💰</div>
+  <div style="font-size:22px;font-weight:700;margin-bottom:5px;text-align:center;">Budget App v5</div>
+  <div style="font-size:13px;color:var(--mu);margin-bottom:24px;text-align:center;line-height:1.7;">Select your profile or create a new one.<br>Your data stays private to your profile.</div>
+  <div id="prof-list" style="width:100%;max-width:360px;margin-bottom:14px;"></div>
+  <div style="width:100%;max-width:360px;">
+    <div style="display:flex;gap:7px;margin-bottom:8px;">
+      <input type="text" id="new-name" placeholder="Your name" style="flex:1;">
+      <input type="text" id="new-emoji" placeholder="😊" style="width:50px;text-align:center;">
+    </div>
+    <button class="btn btn-bl" onclick="createProf()">Create new profile</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app" style="display:none;">
+  <div class="mode-bar">
+    <button class="mode-btn active" onclick="setMode('personal',this)">My Budget</button>
+    <button class="mode-btn" onclick="setMode('public',this)">Calculator</button>
+    <button class="mode-btn" onclick="setMode('adviser',this)">💬 AI Adviser</button>
+  </div>
+
+  <!-- PERSONAL MODE -->
+  <div id="mode-personal">
+    <div class="hdr">
+      <div class="hdr-top">
+        <div>
+          <div class="app-nm"><span class="dot"></span><span id="hdr-nm">Budget</span></div>
+          <div class="app-ver">GENSAN · 50/30/20 · v5.0</div>
+        </div>
+        <div class="hdr-r">
+          <span class="bdg b-i" id="cyc-bdg">W1</span>
+          <button class="sm-btn" onclick="toggleTheme()" id="theme-btn">☀</button>
+          <button class="sm-btn" onclick="showProfs()">⇄</button>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nb active" onclick="st('budget',this)">Budget</button>
+        <button class="nb" onclick="st('loans',this)">Loans</button>
+        <button class="nb" onclick="st('bills',this)">Bills</button>
+        <button class="nb" onclick="st('charts',this)">Charts</button>
+        <button class="nb" onclick="st('score',this)">Health</button>
+        <button class="nb" onclick="st('mp2',this)">MP2</button>
+        <button class="nb" onclick="st('interest',this)">Interest</button>
+        <button class="nb" onclick="st('spending',this)">Spending</button>
+        <button class="nb" onclick="st('monthly',this)">Monthly</button>
+        <button class="nb" onclick="st('networth',this)">Net Worth</button>
+        <button class="nb" onclick="st('goals',this)">Goals</button>
+        <button class="nb" onclick="st('history',this)">History</button>
+        <button class="nb" onclick="st('ef',this)">EF</button>
+        <button class="nb" onclick="st('invest',this)">Invest</button>
+        <button class="nb" onclick="st('sideincome',this)">Side Income</button>
+        <button class="nb" onclick="st('settings',this)">Settings</button>
+      </nav>
+    </div>
+    <div class="ct">
+
+      <!-- BUDGET -->
+      <div id="tab-budget" class="sec active">
+        <div class="card" id="hs-mini-card">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div><div class="ct2" style="margin-bottom:2px;">Weekly health score</div><div style="font-size:24px;font-weight:700;font-family:DM Mono,monospace;" id="hs-mini">--</div><div style="font-size:11px;color:var(--mu);" id="hs-mini-l">Calculate budget first</div></div>
+            <svg width="60" height="60" viewBox="0 0 60 60"><circle cx="30" cy="30" r="24" fill="none" stroke="var(--sur2)" stroke-width="6"/><circle cx="30" cy="30" r="24" fill="none" id="hs-ring" stroke="var(--gr)" stroke-width="6" stroke-dasharray="150" stroke-dashoffset="150" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg>
+          </div>
+        </div>
+
+        <!-- DAILY SPENDING LIMIT -->
+        <div class="card" id="daily-limit-card">
+          <div class="ct2">Daily spending limit</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+            <div style="background:var(--bl-bg);border-radius:var(--rs);padding:11px;text-align:center;">
+              <div style="font-size:10px;color:var(--bl);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Needs / day</div>
+              <div style="font-size:22px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);" id="daily-needs">₱0</div>
+              <div style="font-size:10px;color:var(--hi);margin-top:2px;">food · transpo · load</div>
+            </div>
+            <div style="background:var(--am-bg);border-radius:var(--rs);padding:11px;text-align:center;">
+              <div style="font-size:10px;color:var(--am);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">Wants / day</div>
+              <div style="font-size:22px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="daily-wants">₱0</div>
+              <div style="font-size:10px;color:var(--hi);margin-top:2px;">lifestyle ceiling</div>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--mu);text-align:center;" id="daily-note">Calculate your budget to see daily limits</div>
+        </div>
+
+        <!-- QUICK EXPENSE SHORTCUTS -->
+        <div class="card">
+          <div class="ct2">Quick log</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-bottom:7px;" id="quick-exp-grid">
+            <button onclick="quickLog('load','Load',50,'load')" style="background:var(--gr-bg);border:1px solid var(--gr-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">📱</div><div style="font-size:10px;color:var(--gr);font-weight:600;margin-top:2px;">Load</div><div style="font-size:10px;color:var(--hi);">₱50</div>
+            </button>
+            <button onclick="quickLog('jeep','Jeepney',15,'transpo')" style="background:var(--bl-bg);border:1px solid var(--bl-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🚌</div><div style="font-size:10px;color:var(--bl);font-weight:600;margin-top:2px;">Jeep</div><div style="font-size:10px;color:var(--hi);">₱15</div>
+            </button>
+            <button onclick="quickLog('food','Meal',80,'food')" style="background:var(--am-bg);border:1px solid var(--am-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🍚</div><div style="font-size:10px;color:var(--am);font-weight:600;margin-top:2px;">Meal</div><div style="font-size:10px;color:var(--hi);">₱80</div>
+            </button>
+            <button onclick="quickLog('coffee','Coffee',60,'food')" style="background:var(--or-bg);border:1px solid var(--or-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">☕</div><div style="font-size:10px;color:var(--or);font-weight:600;margin-top:2px;">Coffee</div><div style="font-size:10px;color:var(--hi);">₱60</div>
+            </button>
+            <button onclick="quickLog('snack','Snack',35,'food')" style="background:var(--pk-bg);border:1px solid var(--pk-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🍟</div><div style="font-size:10px;color:var(--pk);font-weight:600;margin-top:2px;">Snack</div><div style="font-size:10px;color:var(--hi);">₱35</div>
+            </button>
+            <button onclick="quickLog('tricycle','Tricycle',20,'transpo')" style="background:var(--pu-bg);border:1px solid var(--pu-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🛺</div><div style="font-size:10px;color:var(--pu);font-weight:600;margin-top:2px;">Tricycle</div><div style="font-size:10px;color:var(--hi);">₱20</div>
+            </button>
+            <button onclick="quickLog('groceries','Groceries',200,'food')" style="background:var(--te-bg);border:1px solid var(--te-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🛒</div><div style="font-size:10px;color:var(--te);font-weight:600;margin-top:2px;">Grocery</div><div style="font-size:10px;color:var(--hi);">₱200</div>
+            </button>
+            <button onclick="quickLog('delivery','Delivery',150,'delivery')" style="background:var(--rd-bg);border:1px solid var(--rd-bg);border-radius:var(--rs);padding:8px 4px;cursor:pointer;text-align:center;">
+              <div style="font-size:18px;">🛵</div><div style="font-size:10px;color:var(--rd);font-weight:600;margin-top:2px;">Delivery</div><div style="font-size:10px;color:var(--hi);">₱150</div>
+            </button>
+          </div>
+          <div style="font-size:11px;color:var(--hi);text-align:center;">Tap any shortcut to instantly log that expense</div>
+        </div>
+
+        <div class="card" id="cd-card">
+          <div class="ct2">Final loan countdown</div>
+          <div style="display:flex;align-items:center;gap:12px;">
+            <svg width="60" height="60" viewBox="0 0 60 60" style="flex-shrink:0;"><circle cx="30" cy="30" r="24" fill="none" stroke="var(--sur2)" stroke-width="6"/><circle cx="30" cy="30" r="24" fill="none" stroke="var(--rd)" stroke-width="6" stroke-dasharray="150" id="cd-ring" stroke-dashoffset="90" stroke-linecap="round" transform="rotate(-90 30 30)"/></svg>
+            <div><div style="font-size:26px;font-weight:700;font-family:DM Mono,monospace;color:var(--rd);" id="cd-days">--</div><div style="font-size:11px;color:var(--mu);">days until final payment</div><div style="font-size:10px;color:var(--hi);font-family:DM Mono,monospace;">May 7, 2026 · ₱2,753.34</div><div style="margin-top:5px;" id="cd-bdg"></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Payday checklist</div>
+            <div style="display:flex;gap:6px;align-items:center;"><span id="ck-p" style="font-size:11px;color:var(--gr);font-weight:600;">0/7</span><button onclick="resetCk()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Reset</button></div>
+          </div>
+          <div id="ck-list">
+            <div class="ck"><div class="cb" onclick="togCk(this,'maribank')" data-action="maribank"></div><div><div class="ck-l">Transfer savings + EF → <strong>Maribank</strong></div><div class="ck-s" id="ck-sv">₱1,475</div><div class="bk bk-m">Maribank savings</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this,'gosave')" data-action="gosave"></div><div><div class="ck-l">Transfer needs → <strong>GoTyme GoSave</strong></div><div class="ck-s" id="ck-nd">Label "Needs"</div><div class="bk bk-g">GoTyme GoSave</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this,'gowallet')" data-action="gowallet"></div><div><div class="ck-l">Keep wants in <strong>GoTyme wallet</strong></div><div class="ck-s" id="ck-wt">Stop at zero</div><div class="bk bk-gw">GoTyme wallet</div></div></div>
+            <div class="ck" id="ck-loan-r" style="display:none;"><div class="cb" onclick="togCk(this)" style="border-color:var(--rd);"></div><div><div class="ck-l" style="color:var(--rd);">Set aside ALL loan payments</div><div class="ck-s" id="ck-ln">Separate Maribank pocket</div><div class="bk bk-m">Maribank pocket</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this)"></div><div><div class="ck-l">Pay fixed bills</div><div class="ck-s">Gym · Coach · Electricity · WiFi</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this)"></div><div><div class="ck-l">Log salary in History tab</div><div class="ck-s">Every week without fail</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this)" style="border-color:var(--rd);"></div><div><div class="ck-l" style="color:var(--rd);">Do NOT open any new online loan</div><div class="ck-s">Protects your CIC credit record</div></div></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct2">Budget split mode</div>
+          <div class="mt-tgl">
+            <button class="mt-b active" id="mt-pct" onclick="setBM('pct')">% Percentage</button>
+            <button class="mt-b" id="mt-fix" onclick="setBM('fix')">₱ Fixed amount</button>
+          </div>
+          <div id="bm-pct">
+            <div class="g3"><div><label>Needs %</label><input type="number" id="bm-np" value="50" min="1" max="98" oninput="calc()"></div><div><label>Wants %</label><input type="number" id="bm-wp" value="30" min="1" max="98" oninput="calc()"></div><div><label>Savings %</label><input type="number" id="bm-sp" value="20" min="1" max="98" oninput="calc()"></div></div>
+            <div id="pct-chk" style="font-size:11px;color:var(--gr);margin-bottom:7px;">Total: 100% ✓</div>
+          </div>
+          <div id="bm-fix" style="display:none;">
+            <div class="g3"><div><label>Fixed needs (₱)</label><input type="number" id="bm-fn" placeholder="0" oninput="calc()"></div><div><label>Fixed wants (₱)</label><input type="number" id="bm-fw" placeholder="0" oninput="calc()"></div><div><label>Fixed savings (₱)</label><input type="number" id="bm-fs" placeholder="0" oninput="calc()"></div></div>
+            <div style="font-size:11px;color:var(--mu);margin-bottom:7px;">Set exact peso amounts. Remainder goes to needs.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="ct2">This week's salary</div>
+          <div class="g2"><div><label>Salary (₱)</label><input type="number" id="sal" value="7373" inputmode="numeric" oninput="calc()"></div><div><label>Pay date</label><input type="text" id="paydate" placeholder="Apr 10"></div></div>
+          <div class="g2"><div><label>Work from</label><input type="text" id="wfrom" placeholder="Mar 30"></div><div><label>Work to</label><input type="text" id="wto" placeholder="Apr 5"></div></div>
+          <div class="g2" style="margin-bottom:10px;"><div><label>Cycle week</label><select id="cycle" onchange="calc();updCyc()"><option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option><option value="4">Week 4 — loan</option></select></div><div><label>Auto loan deduction</label><select id="auto-ln" onchange="calc()"><option value="0">None this week</option></select></div></div>
+          <button class="btn btn-bl" onclick="calc();saveEntry()">Calculate + save to history</button>
+        </div>
+
+        <div id="results" style="display:none;">
+          <div class="g3" style="margin-bottom:9px;">
+            <div class="met"><div class="ml">Salary</div><div class="mv" id="r-sal">₱0</div></div>
+            <div class="met"><div class="ml">Loans</div><div class="mv" id="r-ln" style="color:var(--rd)">₱0</div></div>
+            <div class="met"><div class="ml">Available</div><div class="mv" id="r-av" style="color:var(--bl)">₱0</div></div>
+          </div>
+          <div class="bar-wrap"><div class="bseg" id="bar-n" style="background:var(--bl)"></div><div class="bseg" id="bar-w" style="background:var(--am)"></div><div class="bseg" id="bar-s" style="background:var(--gr)"></div></div>
+          <div class="alc" style="background:var(--bl-bg)">
+            <div class="alc-h"><div class="alc-t" style="color:var(--bl)">Needs</div><div class="alc-a" id="n-tot" style="color:var(--bl)">₱0</div></div>
+            <div class="ar" style="color:var(--bl)"><span>Fixed bills (weekly)</span><span class="av" id="a-fix">₱0</span></div>
+            <div class="ar" style="color:var(--bl)"><span>Food</span><span class="av" id="a-food">₱0</span></div>
+            <div class="ar" style="color:var(--bl)"><span>Transpo</span><span class="av" id="a-tr">₱0</span></div>
+            <div class="ar" style="color:var(--bl)"><span>Load / data</span><span class="av" id="a-ld">₱0</span></div>
+            <div class="ar" style="color:var(--bl)"><span>Personal care</span><span class="av" id="a-pc">₱0</span></div>
+            <div style="margin-top:6px;"><span class="bk bk-g" style="font-size:10px;">→ GoTyme GoSave "Needs"</span></div>
+          </div>
+          <div class="alc" style="background:var(--am-bg)">
+            <div class="alc-h"><div class="alc-t" style="color:var(--am)">Wants</div><div class="alc-a" id="w-tot" style="color:var(--am)">₱0</div></div>
+            <div class="ar" style="color:var(--am)"><span>Food upgrades / delivery</span><span class="av" id="w1">₱0</span></div>
+            <div class="ar" style="color:var(--am)"><span>Shopping</span><span class="av" id="w2">₱0</span></div>
+            <div class="ar" style="color:var(--am)"><span>Entertainment / social</span><span class="av" id="w3">₱0</span></div>
+            <div class="ar" style="color:var(--am)"><span>Miscellaneous</span><span class="av" id="w4">₱0</span></div>
+            <div style="margin-top:6px;"><span class="bk bk-gw" style="font-size:10px;">→ GoTyme wallet</span></div>
+          </div>
+          <div class="alc" style="background:var(--gr-bg)">
+            <div class="alc-h"><div class="alc-t" style="color:var(--gr)">Savings</div><div class="alc-a" id="s-tot" style="color:var(--gr)">₱0</div></div>
+            <div class="ar" style="color:var(--gr)"><span>Emergency fund</span><span class="av" id="s-ef">₱0</span></div>
+            <div class="ar" style="color:var(--gr)"><span>Personal savings</span><span class="av" id="s-ps">₱0</span></div>
+            <div style="margin-top:6px;"><span class="bk bk-m" style="font-size:10px;">→ Maribank savings</span></div>
+          </div>
+          <div class="card">
+            <div class="ct2">Action order</div>
+            <div class="sl">
+              <div class="si" id="ln-step" style="display:none;"><div class="sn" style="background:var(--rd-bg);color:var(--rd)">!</div><div class="st"><strong>Set aside loan payment</strong> — Maribank pocket</div><span class="sv2" id="act-ln" style="color:var(--rd)">₱0</span></div>
+              <div class="si"><div class="sn">1</div><div class="st"><strong>Savings + EF → Maribank</strong></div><span class="sv2" id="act1" style="color:var(--gr)">₱0</span></div>
+              <div class="si"><div class="sn">2</div><div class="st"><strong>Needs → GoTyme GoSave</strong></div><span class="sv2" id="act2" style="color:var(--te)">₱0</span></div>
+              <div class="si"><div class="sn">3</div><div class="st"><strong>Wants → GoTyme wallet</strong></div><span class="sv2" id="act3" style="color:var(--am)">₱0</span></div>
+              <div class="si"><div class="sn">4</div><div class="st"><strong>Fixed bills reserved</strong></div><span class="sv2" id="act4" style="color:var(--bl)">₱0</span></div>
+            </div>
+          </div>
+          <div id="alert-box"></div>
+
+          <!-- WHAT IF SIMULATOR -->
+          <div class="card" style="margin-top:2px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div class="ct2" style="margin-bottom:0;">What-if salary simulator</div>
+              <button class="sm-btn" onclick="exportSummary()" style="color:var(--bl);border-color:var(--bl);">📋 Export</button>
+            </div>
+            <div style="display:flex;gap:8px;margin-bottom:8px;">
+              <input type="number" id="whatif-sal" placeholder="Try a different salary..." inputmode="numeric" style="flex:1;">
+              <button class="btn btn-bl btn-sm" onclick="runWhatIf()">Simulate</button>
+            </div>
+            <div id="wi-result" style="display:none;background:var(--sur2);border-radius:var(--rs);padding:10px;">
+              <div style="font-size:11px;color:var(--mu);margin-bottom:7px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;">If I receive this amount:</div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+                <div class="met"><div class="ml">Needs</div><div class="mv" id="wi-needs" style="color:var(--bl)">₱0</div></div>
+                <div class="met"><div class="ml">Wants</div><div class="mv" id="wi-wants" style="color:var(--am)">₱0</div></div>
+                <div class="met"><div class="ml">Savings</div><div class="mv" id="wi-savings" style="color:var(--gr)">₱0</div></div>
+                <div class="met"><div class="ml">Daily needs</div><div class="mv" id="wi-daily" style="color:var(--bl)">₱0</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LOANS -->
+      <div id="tab-loans" class="sec">
+        <div class="card"><div class="ct2">Debt-to-income ratio</div><div class="dti-w"><div class="dti-n" id="dti-n" style="color:var(--gr)">0%</div><div style="font-size:11px;color:var(--mu);">of monthly income goes to debt</div></div><div class="pw"><div class="pf" id="dti-bar" style="width:0%;background:var(--gr)"></div></div><div id="dti-alt" style="margin-top:8px;"></div></div>
+        <!-- DEBT PAYOFF MOTIVATOR -->
+        <div class="card" id="payoff-card">
+          <div class="ct2">Debt payoff motivator</div>
+          <div id="payoff-content"><div class="emp" style="padding:10px 0;">Add a loan above to see your payoff plan.</div></div>
+        </div>
+
+        <div class="card">
+          <div class="ct2">Add new loan</div>
+          <div class="g2"><div><label>Lender name</label><input type="text" id="ln-nm" placeholder="e.g. Cashalo"></div><div><label>Type</label><select id="ln-type"><option value="online">Online app</option><option value="bank">Bank loan</option><option value="salary">Salary loan</option><option value="informal">Informal/5-6</option><option value="friend">Friend/family</option><option value="credit">Credit card</option></select></div></div>
+          <div class="g2"><div><label>Original amount (₱)</label><input type="number" id="ln-orig" placeholder="5000" inputmode="numeric"></div><div><label>Current balance (₱)</label><input type="number" id="ln-bal" placeholder="5000" inputmode="numeric"></div></div>
+          <div class="g2"><div><label>Interest (%/month)</label><input type="number" id="ln-int" placeholder="3.5" step="0.1"></div><div><label>Payment amount (₱)</label><input type="number" id="ln-pay" placeholder="500" inputmode="numeric"></div></div>
+          <div class="g2" style="margin-bottom:10px;"><div><label>Due day of month</label><input type="number" id="ln-due" placeholder="7" min="1" max="31"></div><div><label>Auto-deduct weekly?</label><select id="ln-auto"><option value="yes">Yes</option><option value="no">No</option></select></div></div>
+          <button class="btn btn-rd" onclick="addLoan()">Add loan</button>
+        </div>
+        <div id="loans-list"><div class="emp">No loans tracked.</div></div>
+      </div>
+
+      <!-- BILLS -->
+      <div id="tab-bills" class="sec">
+        <div class="card"><div class="ct2">Add bill reminder</div><div class="g2"><div><label>Bill name</label><input type="text" id="bl-nm" placeholder="Gym membership"></div><div><label>Amount (₱/month)</label><input type="number" id="bl-amt" placeholder="1000" inputmode="numeric"></div></div><div class="g2" style="margin-bottom:10px;"><div><label>Due day</label><input type="number" id="bl-day" placeholder="1" min="1" max="31"></div><div><label>Category</label><select id="bl-cat"><option value="fitness">Fitness</option><option value="utilities">Utilities</option><option value="internet">Internet</option><option value="subscription">Subscription</option><option value="loan">Loan payment</option><option value="other">Other</option></select></div></div><button class="btn btn-bl" onclick="addBill()">Add bill reminder</button></div>
+        <div class="card"><div class="mo-nav-r"><button class="sm-btn" onclick="chgCal(-1)">&#8249;</button><span style="font-size:13px;font-weight:600;" id="cal-lbl">April 2026</span><button class="sm-btn" onclick="chgCal(1)">&#8250;</button></div><div class="cal-grid" id="cal-grid"></div></div>
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Bill list</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span id="bills-reset-note" style="font-size:10px;color:var(--hi);"></span>
+              <button class="sm-btn" onclick="resetBillsChecked()" style="font-size:10px;">Reset paid</button>
+            </div>
+          </div>
+          <div id="bills-list"><div class="emp">No bills added.</div></div>
+          <div class="tr" id="bills-tr" style="display:none;"><span style="color:var(--mu);font-size:12px;">Monthly total</span><span id="bills-tot" style="color:var(--rd);font-family:DM Mono,monospace;">₱0</span></div>
+        </div>
+      </div>
+
+      <!-- CHARTS -->
+      <div id="tab-charts" class="sec">
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><div class="ct2" style="margin-bottom:0;">Income vs expenses</div><div style="display:flex;gap:5px;"><button class="sm-btn" id="cwk" onclick="setCVw('weekly',this)" style="color:var(--bl);border-color:var(--bl)">Weekly</button><button class="sm-btn" id="cmo" onclick="setCVw('monthly',this)">Monthly</button></div></div><div class="chart-w"><div style="min-width:280px;"><div class="bc" id="bar-chart"></div></div></div><div style="display:flex;gap:10px;margin-top:7px;flex-wrap:wrap;"><div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mu);"><div style="width:8px;height:8px;border-radius:2px;background:var(--bl)"></div>Income</div><div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mu);"><div style="width:8px;height:8px;border-radius:2px;background:var(--rd)"></div>Expenses</div><div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--mu);"><div style="width:8px;height:8px;border-radius:2px;background:var(--gr)"></div>Savings</div></div></div>
+        <div class="card"><div class="ri"><span class="rl">Total income</span><span class="rv" id="ct-inc" style="color:var(--bl)">₱0</span></div><div class="ri"><span class="rl">Total expenses</span><span class="rv" id="ct-exp" style="color:var(--rd)">₱0</span></div><div class="ri"><span class="rl">Total saved</span><span class="rv" id="ct-sav" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">Savings rate</span><span class="rv" id="ct-rate" style="color:var(--gr)">0%</span></div></div>
+      </div>
+
+      <!-- HEALTH SCORE -->
+      <div id="tab-score" class="sec">
+        <div class="card"><div class="hs-big"><div class="hs-n" id="hs-num" style="color:var(--gr)">--</div><div class="hs-l" id="hs-lbl">Calculate budget first</div></div><div class="pw" style="height:11px;margin-bottom:12px;"><div class="pf" id="hs-bar" style="width:0%;background:var(--gr);height:11px;border-radius:5px;"></div></div><div class="ri"><span class="rl">Savings rate (max 25)</span><span class="rv" id="hp1">0</span></div><div class="ri"><span class="rl">Checklist done (max 20)</span><span class="rv" id="hp2">0</span></div><div class="ri"><span class="rl">No new loans (max 20)</span><span class="rv" id="hp3">0</span></div><div class="ri"><span class="rl">EF progress (max 20)</span><span class="rv" id="hp4">0</span></div><div class="ri"><span class="rl">DTI safe (max 15)</span><span class="rv" id="hp5">0</span></div></div>
+        <div id="hs-adv"></div>
+        <div class="card"><div class="ct2">Saving streak</div><div style="text-align:center;padding:10px 0 5px;"><div style="font-size:44px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="streak">0</div><div style="font-size:12px;color:var(--mu);">weeks in a row with savings</div></div><div id="streak-msg"></div></div>
+      </div>
+
+      <!-- MP2 -->
+      <div id="tab-mp2" class="sec">
+        <div class="alt a-p">Start MP2 after May 7. Min ₱500/month. Govt-backed. ~7% dividend. Better than any digital bank.</div>
+        <div class="card"><div class="ct2">MP2 calculator</div><div class="g2"><div><label>Monthly contribution (₱)</label><input type="number" id="mp2-mo" value="500" oninput="calcMP2()"></div><div><label>Years</label><input type="number" id="mp2-yr" value="5" min="1" oninput="calcMP2()"></div></div><div><label>Dividend rate (%/year)</label><input type="number" id="mp2-rate" value="7" step="0.1" oninput="calcMP2()"></div></div>
+        <div class="mp2-pj"><div style="font-size:11px;font-weight:600;color:var(--pu);margin-bottom:7px;text-transform:uppercase;letter-spacing:.05em;">Projected maturity value</div><div class="mp2-b" id="mp2-res">₱0</div><div style="font-size:12px;color:var(--pu);opacity:.8;" id="mp2-sub"></div></div>
+        <div class="card"><div class="ri"><span class="rl">Total contributed</span><span class="rv" id="mp2-c" style="color:var(--bl)">₱0</span></div><div class="ri"><span class="rl">Total dividends</span><span class="rv" id="mp2-d" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">ROI</span><span class="rv" id="mp2-roi" style="color:var(--am)">0%</span></div></div>
+        <div class="card"><div class="ct2">Yearly projection</div><div id="mp2-yr-list"></div></div>
+      </div>
+
+      <!-- INTEREST -->
+      <div id="tab-interest" class="sec">
+        <div class="card"><div class="ct2">Digital bank interest calculator</div><div class="g2"><div><label>Savings balance (₱)</label><input type="number" id="int-bal" value="5000" inputmode="numeric" oninput="calcInt()"></div><div><label>Bank</label><select id="int-bank" onchange="calcInt()"><option value="6">Maribank (6% p.a.)</option><option value="6">SeaBank (6% p.a.)</option><option value="5">GoTyme GoSave (5%)</option><option value="3.5">Maya (3.5%)</option><option value="2.5">GCash GSave (2.5%)</option><option value="custom">Custom rate</option></select></div></div><div id="int-cr" style="display:none;"><label>Custom rate (%/year)</label><input type="number" id="int-cv" value="6" step="0.1" oninput="calcInt()"></div></div>
+        <div class="int-r"><div class="int-e" id="int-mo-e">₱0</div><div style="font-size:12px;color:var(--mu)">earned per month</div></div>
+        <div class="card"><div class="ri"><span class="rl">Daily</span><span class="rv" id="int-dy" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">Monthly</span><span class="rv" id="int-mo" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">Yearly</span><span class="rv" id="int-yr" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">After 1 year</span><span class="rv" id="int-1y" style="color:var(--bl)">₱0</span></div><div class="ri"><span class="rl">After 3 years</span><span class="rv" id="int-3y" style="color:var(--bl)">₱0</span></div><div class="ri"><span class="rl">After 5 years</span><span class="rv" id="int-5y" style="color:var(--bl)">₱0</span></div></div>
+        <div class="alt a-ok">Maribank + SeaBank = 6% p.a. — highest in PH. Park your EF and savings here.</div>
+      </div>
+
+      <!-- SPENDING -->
+      <div id="tab-spending" class="sec">
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><div class="ct2" style="margin-bottom:0;">Budget lock</div><button class="sm-btn" onclick="toggleLock()" id="lock-btn">🔓 Off</button></div><div style="text-align:center;padding:10px 0 5px;"><div style="font-size:28px;" id="lock-icon">🔓</div><div style="font-size:26px;font-weight:700;font-family:DM Mono,monospace;" id="lock-amt">₱0</div><div style="font-size:11px;color:var(--mu);" id="lock-st">Calculate budget first</div></div><div id="lock-prog" style="display:none;"><div class="pw"><div class="pf" id="lock-bar" style="width:0%;background:var(--gr)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-top:2px;"><span id="lk-spent">₱0 spent</span><span id="lk-rem">₱0 left</span></div></div></div>
+        <div class="card"><div class="ct2">Log expense</div><div class="g2"><div><label>Amount (₱)</label><input type="number" id="sp-amt" placeholder="0" inputmode="numeric"></div><div><label>Category</label><select id="sp-cat"><option value="food">Food</option><option value="transpo">Transpo</option><option value="load">Load</option><option value="personal">Personal</option><option value="delivery">Delivery</option><option value="shopping">Shopping</option><option value="entertainment">Entertainment</option><option value="social">Social</option><option value="misc">Misc</option></select></div></div><div style="margin-bottom:9px;"><label>Note</label><input type="text" id="sp-note" placeholder="e.g. Jollibee"></div><button class="btn btn-bl" onclick="addSpend()">Log expense</button></div>
+        <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><div class="ct2" style="margin-bottom:0;">This week</div><button onclick="clearSpends()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Clear</button></div><div id="sp-cats"><div class="emp">No expenses yet.</div></div><div class="tr"><span style="color:var(--mu);font-size:12px;">Total</span><span id="sp-tot" style="font-family:DM Mono,monospace;">₱0</span></div></div>
+        <div class="card"><div class="ct2">Log</div><div id="sp-log"><div class="emp">No entries.</div></div></div>
+      </div>
+
+      <!-- MONTHLY -->
+      <div id="tab-monthly" class="sec">
+        <div class="card"><div class="mo-nav-r"><button class="sm-btn" onclick="chgMo(-1)">&#8249;</button><span style="font-size:13px;font-weight:600;" id="mo-lbl">April 2026</span><button class="sm-btn" onclick="chgMo(1)">&#8250;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:9px;"><div class="met"><div class="ml">Income</div><div class="mv" id="su-i" style="color:var(--bl)">₱0</div></div><div class="met"><div class="ml">Saved</div><div class="mv" id="su-s" style="color:var(--gr)">₱0</div></div><div class="met"><div class="ml">Needs</div><div class="mv" id="su-n">₱0</div></div><div class="met"><div class="ml">Wants</div><div class="mv" id="su-w" style="color:var(--am)">₱0</div></div></div><div class="ri"><span class="rl">Loans paid</span><span class="rv" id="su-l" style="color:var(--rd)">₱0</span></div><div class="ri"><span class="rl">Savings rate</span><span class="rv" id="su-r" style="color:var(--gr)">0%</span></div></div>
+        <div class="card"><div class="ct2">Forecast</div><div id="fc-ct"><div class="emp" style="padding:12px 0;">Log at least 1 week first.</div></div></div>
+      </div>
+
+      <!-- NET WORTH -->
+      <div id="tab-networth" class="sec">
+        <div style="text-align:center;padding:12px 0 5px;"><div style="font-size:34px;font-weight:700;font-family:DM Mono,monospace;" id="nw-tot">₱0</div><div style="font-size:12px;color:var(--mu);">Net worth</div></div>
+        <div class="g2" style="margin-bottom:9px;"><div class="met"><div class="ml">Assets</div><div class="mv" id="nw-a" style="color:var(--gr)">₱0</div></div><div class="met"><div class="ml">Debts</div><div class="mv" id="nw-d" style="color:var(--rd)">₱0</div></div></div>
+        <div class="card"><div class="ct2">Update balances</div><div class="g2"><div><label>Maribank (₱)</label><input type="number" id="nw-mb" value="0" oninput="updNW()"></div><div><label>GoTyme GoSave (₱)</label><input type="number" id="nw-gt" value="0" oninput="updNW()"></div></div><div class="g2"><div><label>Cash (₱)</label><input type="number" id="nw-c" value="0" oninput="updNW()"></div><div><label>Other (₱)</label><input type="number" id="nw-o" value="0" oninput="updNW()"></div></div></div>
+      </div>
+
+      <!-- GOALS -->
+      <div id="tab-goals" class="sec">
+        <div class="card"><div class="ct2">Add goal</div><div class="g2"><div><label>Goal name</label><input type="text" id="gl-nm" placeholder="New phone"></div><div><label>Target (₱)</label><input type="number" id="gl-tgt" placeholder="5000" inputmode="numeric"></div></div><div class="g2" style="margin-bottom:10px;"><div><label>Saved so far (₱)</label><input type="number" id="gl-sv" value="0" inputmode="numeric"></div><div><label>Weekly contribution</label><input type="number" id="gl-wk" placeholder="500" inputmode="numeric"></div></div><button class="btn btn-bl" onclick="addGoal()">Add goal</button></div>
+        <div id="goals-list"><div class="emp">No goals yet.</div></div>
+        <div class="alt a-p">Add goals only after emergency fund hits ₱10,000.</div>
+      </div>
+
+      <!-- HISTORY -->
+      <div id="tab-history" class="sec">
+        <div class="card"><div class="ct2">Salary history</div><div id="hist-list"><div class="emp">No entries yet.</div></div><div class="tr" id="hist-tr" style="display:none;"><span style="color:var(--mu);font-size:12px;">Total EF saved</span><span id="hist-ef" style="color:var(--gr);font-family:DM Mono,monospace;">₱0</span></div></div>
+        <button class="btn btn-gh" onclick="clearHist()">Clear history</button>
+      </div>
+
+      <!-- EMERGENCY FUND -->
+      <div id="tab-ef" class="sec">
+        <div class="card">
+          <div class="mt-tgl" style="margin-bottom:11px;">
+            <button class="mt-b active" id="ef-mode-add" onclick="setEFMode('add')">+ Add deposit</button>
+            <button class="mt-b" id="ef-mode-wd" onclick="setEFMode('withdraw')">- Withdraw</button>
+          </div>
+          <div id="ef-add-section">
+            <div class="g2" style="margin-bottom:9px;">
+              <div><label>Amount (₱)</label><input type="number" id="ef-amt" value="1000" inputmode="numeric"></div>
+              <div><label>Note</label><input type="text" id="ef-note" placeholder="Week 1"></div>
+            </div>
+            <button class="btn btn-gr" onclick="addDep()">Add → Maribank</button>
+          </div>
+          <div id="ef-wd-section" style="display:none;">
+            <div class="alt a-d" style="margin-bottom:10px;">Only withdraw for TRUE emergencies. This reduces your safety net.</div>
+            <div class="g2" style="margin-bottom:9px;">
+              <div><label>Amount to withdraw (₱)</label><input type="number" id="ef-wd-amt" placeholder="0" inputmode="numeric"></div>
+              <div><label>Reason</label><input type="text" id="ef-wd-note" placeholder="e.g. Medical emergency"></div>
+            </div>
+            <button class="btn btn-rd" onclick="withdrawEF()">Withdraw from EF</button>
+          </div>
+        </div>
+        <div style="text-align:center;padding:12px 0 5px;"><div style="font-size:34px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);" id="ef-bal">₱0</div><div style="font-size:12px;color:var(--mu);">of <span id="ef-tl">₱36,000</span> target</div></div>
+        <div class="pw"><div class="pf" id="ef-bar" style="width:0%;background:var(--gr)"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:11px;"><span id="ef-pct">0%</span><span id="ef-rem">₱36,000 remaining</span></div>
+        <div class="g3" style="margin-bottom:9px;"><div class="met"><div class="ml">@₱1K/wk</div><div class="mv" id="p1">36w</div></div><div class="met"><div class="ml">@₱1.5K</div><div class="mv" id="p2">24w</div></div><div class="met"><div class="ml">@₱2.5K</div><div class="mv" id="p3">14w</div></div></div>
+        <div class="card"><div class="ct2">Deposit log</div><div id="ef-log"><div class="emp">No deposits.</div></div><div class="tr" id="ef-tr" style="display:none;"><span style="color:var(--mu);font-size:12px;">Total</span><span id="ef-tot" style="color:var(--gr);font-family:DM Mono,monospace;">₱0</span></div></div>
+      </div>
+
+      <!-- SETTINGS -->
+      <!-- INVESTMENTS TAB -->
+      <div id="tab-invest" class="sec">
+
+        <div class="alt a-p" style="margin-bottom:10px;">As your adviser: invest ONLY after your EF hits ₱18,000 (50% of target). Never invest money you might need. Start small. Stay consistent.</div>
+
+        <!-- READINESS CHECK -->
+        <div class="card">
+          <div class="ct2">Investment readiness</div>
+          <div id="invest-ready-check"></div>
+        </div>
+
+        <!-- PH INVESTMENT OPTIONS -->
+        <div class="card">
+          <div class="ct2">Philippine investment options — ranked by risk</div>
+
+          <!-- MP2 -->
+          <div style="border-radius:var(--rs);background:var(--pu-bg);padding:12px;margin-bottom:9px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--pu);">Pag-IBIG MP2</div>
+                <div style="font-size:11px;color:var(--mu);margin-top:1px;">Government savings program</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:var(--pu);">~7% / year</div>
+                <span class="bdg b-ok" style="font-size:10px;">Lowest risk</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:8px;">Government-backed. Dividend rate averages 6–7% p.a. — beats all digital banks. Minimum ₱500/month. 5-year lock-in period. Cannot withdraw early.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Min. amount</div><div style="font-weight:700;color:var(--pu);">₱500/mo</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Lock-in</div><div style="font-weight:700;color:var(--pu);">5 years</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Start when</div><div style="font-weight:700;color:var(--pu);">After May 7</div></div>
+            </div>
+          </div>
+
+          <!-- TIME DEPOSIT -->
+          <div style="border-radius:var(--rs);background:var(--te-bg);padding:12px;margin-bottom:9px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--te);">Time Deposit</div>
+                <div style="font-size:11px;color:var(--mu);margin-top:1px;">BDO, BPI, Metrobank, UnionBank</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:var(--te);">3–6% / year</div>
+                <span class="bdg b-ok" style="font-size:10px;">Very low risk</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:8px;">Lock your money for 30–365 days and earn guaranteed interest. Safe, PDIC-insured up to ₱500K. Good for money you will not need for a few months. UnionBank Time Deposit offers 6% for 365 days online.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Min. amount</div><div style="font-weight:700;color:var(--te);">₱5,000</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Lock-in</div><div style="font-weight:700;color:var(--te);">30–365d</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">PDIC insured</div><div style="font-weight:700;color:var(--te);">Yes</div></div>
+            </div>
+          </div>
+
+          <!-- UITF -->
+          <div style="border-radius:var(--rs);background:var(--bl-bg);padding:12px;margin-bottom:9px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--bl);">UITF / Mutual Fund</div>
+                <div style="font-size:11px;color:var(--mu);margin-top:1px;">BDO, BPI, GInvest (GCash), Seedbox</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);">5–12% / year</div>
+                <span class="bdg b-w" style="font-size:10px;">Medium risk</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:8px;">Pooled funds managed by professionals. GInvest inside GCash is the easiest entry point — start with ₱50. Returns vary. Money market funds are safest. Equity funds have higher returns but more volatility. Not PDIC-insured.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Min. amount</div><div style="font-weight:700;color:var(--bl);">₱50 (GCash)</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Lock-in</div><div style="font-weight:700;color:var(--bl);">None</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Risk level</div><div style="font-weight:700;color:var(--am);">Medium</div></div>
+            </div>
+          </div>
+
+          <!-- REITS -->
+          <div style="border-radius:var(--rs);background:var(--or-bg);padding:12px;margin-bottom:9px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--or);">REITs (Real Estate)</div>
+                <div style="font-size:11px;color:var(--mu);margin-top:1px;">AREIT, MREIT, FILREIT, DDMPR, RCR</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:var(--or);">5–8% dividends</div>
+                <span class="bdg b-w" style="font-size:10px;">Medium risk</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:8px;">Real Estate Investment Trusts — own a piece of commercial properties and earn quarterly dividends. Listed on PSE. By law must pay 90% of income as dividends. Best for passive income. Price fluctuates with the market. Buy via COL Financial, First Metro Sec, or Seedbox app.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Min. amount</div><div style="font-weight:700;color:var(--or);">~₱1,000</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Dividends</div><div style="font-weight:700;color:var(--or);">Quarterly</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Platform</div><div style="font-weight:700;color:var(--or);">COL / Seedbox</div></div>
+            </div>
+          </div>
+
+          <!-- PH STOCKS -->
+          <div style="border-radius:var(--rs);background:var(--rd-bg);padding:12px;margin-bottom:9px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;">
+              <div>
+                <div style="font-size:13px;font-weight:700;color:var(--rd);">PSE Stocks</div>
+                <div style="font-size:11px;color:var(--mu);margin-top:1px;">Philippine Stock Exchange</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:var(--rd);">Variable</div>
+                <span class="bdg b-d" style="font-size:10px;">Higher risk</span>
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--mu);line-height:1.6;margin-bottom:8px;">Direct ownership of PH companies — SM, Jollibee, BDO, Ayala, PLDT, etc. Highest potential return but also highest risk. Only invest what you can afford to lose. Recommended platforms: COL Financial (most trusted in PH), First Metro Sec, BDO Nomura. Start with blue-chip stocks only.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:11px;">
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Min. amount</div><div style="font-weight:700;color:var(--rd);">~₱5,000</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Risk level</div><div style="font-weight:700;color:var(--rd);">High</div></div>
+              <div style="background:var(--sur);border-radius:6px;padding:7px;text-align:center;"><div style="color:var(--mu);">Platform</div><div style="font-weight:700;color:var(--rd);">COL Financial</div></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVESTMENT ROADMAP -->
+        <div class="card">
+          <div class="ct2">Your investment roadmap</div>
+          <div class="sl">
+            <div class="si">
+              <div class="sn" style="background:var(--rd-bg);color:var(--rd);">1</div>
+              <div class="st"><strong>Right now — before investing</strong><br>Pay May 7 loan. Build EF to ₱18,000. Zero online loans.</div>
+            </div>
+            <div class="si">
+              <div class="sn" style="background:var(--am-bg);color:var(--am);">2</div>
+              <div class="st"><strong>June 2026 — Start MP2</strong><br>₱500/month minimum. Set up auto-debit from Maribank. Government-backed, safest first investment.</div>
+            </div>
+            <div class="si">
+              <div class="sn" style="background:var(--bl-bg);color:var(--bl);">3</div>
+              <div class="st"><strong>When EF hits ₱36,000 — Add UITF</strong><br>Open GInvest on GCash. Start with Money Market Fund. ₱500–₱1,000/month.</div>
+            </div>
+            <div class="si">
+              <div class="sn" style="background:var(--or-bg);color:var(--or);">4</div>
+              <div class="st"><strong>When savings hit ₱20,000 — Add REITs</strong><br>Open COL Financial or Seedbox. Buy AREIT or MREIT for quarterly dividends.</div>
+            </div>
+            <div class="si">
+              <div class="sn" style="background:var(--gr-bg);color:var(--gr);">5</div>
+              <div class="st"><strong>Long term — PSE stocks</strong><br>Only after all above are running. Blue-chip only: SM, BDO, Jollibee. Dollar-cost average monthly.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- INVESTMENT TRACKER -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">My investments</div>
+            <button class="sm-btn" onclick="showInvestModal()" style="color:var(--gr);border-color:var(--gr);">+ Add</button>
+          </div>
+          <div id="invest-list"><div class="emp">No investments tracked yet. Add your first one above.</div></div>
+          <div class="tr" id="invest-total-row" style="display:none;">
+            <span style="color:var(--mu);font-size:12px;">Total invested</span>
+            <span id="invest-total" style="color:var(--pu);font-family:DM Mono,monospace;">₱0</span>
+          </div>
+        </div>
+
+        <!-- WEEKLY INVESTMENT PLANNER -->
+        <div class="card" id="inv-weekly-planner">
+          <div class="ct2">Weekly investment budget planner</div>
+          <div style="font-size:12px;color:var(--mu);margin-bottom:12px;">Based on your salary of <span id="inv-sal-display" style="color:var(--tx);font-weight:600;">₱7,373</span>, here is how much to invest each week after all expenses.</div>
+
+          <div style="margin-bottom:10px;">
+            <label>Choose investments to include</label>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="inv-chk-mp2" onchange="calcInvPlan()" checked> <span style="color:var(--pu);">MP2</span></label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="inv-chk-uitf" onchange="calcInvPlan()"> <span style="color:var(--bl);">UITF</span></label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="inv-chk-reit" onchange="calcInvPlan()"> <span style="color:var(--or);">REITs</span></label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="inv-chk-stocks" onchange="calcInvPlan()"> <span style="color:var(--rd);">Stocks</span></label>
+              <label style="display:flex;align-items:center;gap:5px;font-size:12px;cursor:pointer;"><input type="checkbox" id="inv-chk-td" onchange="calcInvPlan()"> <span style="color:var(--te);">Time Deposit</span></label>
+            </div>
+          </div>
+
+          <div id="inv-plan-result"></div>
+        </div>
+
+        <div class="alt a-i">Adviser rule: Never invest borrowed money. Never invest your emergency fund. Never put all eggs in one basket. Start small, learn, then grow.</div>
+      </div>
+
+      <!-- INVEST MODAL -->
+      <div id="invest-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--sur);border-radius:var(--r);padding:20px;width:100%;max-width:400px;border:1px solid var(--bd2);">
+          <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Add investment</div>
+          <div class="g2">
+            <div><label>Investment name</label><input type="text" id="inv-nm" placeholder="e.g. MP2, AREIT"></div>
+            <div><label>Type</label>
+              <select id="inv-type">
+                <option value="mp2">Pag-IBIG MP2</option>
+                <option value="td">Time Deposit</option>
+                <option value="uitf">UITF / Mutual Fund</option>
+                <option value="reit">REIT</option>
+                <option value="stocks">PSE Stocks</option>
+                <option value="crypto">Crypto</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="g2">
+            <div><label>Amount invested (₱)</label><input type="number" id="inv-amt" placeholder="500" inputmode="numeric"></div>
+            <div><label>Current value (₱)</label><input type="number" id="inv-val" placeholder="500" inputmode="numeric"></div>
+          </div>
+          <div class="g2" style="margin-bottom:13px;">
+            <div><label>Monthly contribution (₱)</label><input type="number" id="inv-mo" placeholder="500" inputmode="numeric"></div>
+            <div><label>Platform</label><input type="text" id="inv-platform" placeholder="e.g. COL Financial"></div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-gh" style="flex:1;" onclick="hideInvestModal()">Cancel</button>
+            <button class="btn btn-bl" style="flex:1;" onclick="addInvest()">Add investment</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SIDE INCOME TAB -->
+      <div id="tab-sideincome" class="sec">
+
+        <div class="alt a-ok" style="margin-bottom:10px;">At 21 and self-employed, every extra peso matters. Track all income sources here separately from your main salary so you know exactly where your money comes from.</div>
+
+        <!-- ADD SIDE INCOME -->
+        <div class="card">
+          <div class="ct2">Log side income</div>
+          <div class="g2">
+            <div><label>Amount (₱)</label><input type="number" id="si-amt" placeholder="0" inputmode="numeric"></div>
+            <div><label>Source</label>
+              <select id="si-source">
+                <option value="freelance">Freelance project</option>
+                <option value="online">Online selling</option>
+                <option value="commission">Commission</option>
+                <option value="bonus">Bonus / tip</option>
+                <option value="rental">Rental income</option>
+                <option value="investment">Investment return</option>
+                <option value="gift">Gift / pasalubong</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="g2">
+            <div><label>Description</label><input type="text" id="si-desc" placeholder="e.g. Logo design project"></div>
+            <div><label>Date</label><input type="text" id="si-date" placeholder="e.g. Apr 10"></div>
+          </div>
+          <div style="margin-bottom:10px;">
+            <label>What to do with this money</label>
+            <select id="si-action">
+              <option value="ef">Add to Emergency Fund (Maribank)</option>
+              <option value="savings">Add to Personal Savings (Maribank)</option>
+              <option value="invest">Set aside for Investment</option>
+              <option value="needs">Cover needs / bills</option>
+              <option value="wants">Keep in GoTyme wallet</option>
+              <option value="split">Split 50/30/20 like salary</option>
+            </select>
+          </div>
+          <button class="btn btn-gr" onclick="addSideIncome()">Log side income</button>
+        </div>
+
+        <!-- SUMMARY CARDS -->
+        <div class="g2" style="margin-bottom:10px;" id="si-summary-cards">
+          <div class="met"><div class="ml">Total this month</div><div class="mv" id="si-month-total" style="color:var(--gr);">₱0</div><div class="ms">Side income</div></div>
+          <div class="met"><div class="ml">Total all time</div><div class="mv" id="si-all-total" style="color:var(--bl);">₱0</div><div class="ms">All sources</div></div>
+        </div>
+
+        <!-- INCOME BY SOURCE -->
+        <div class="card">
+          <div class="ct2">Income by source</div>
+          <div id="si-by-source"><div class="emp">No side income logged yet.</div></div>
+        </div>
+
+        <!-- ADVISER TIP -->
+        <div class="card">
+          <div class="ct2">What to do with side income</div>
+          <div class="sl">
+            <div class="si"><div class="sn" style="background:var(--gr-bg);color:var(--gr);">1</div><div class="st"><strong>First ₱1,000 or less</strong> — send straight to Emergency Fund in Maribank. Do not touch it.</div></div>
+            <div class="si"><div class="sn" style="background:var(--bl-bg);color:var(--bl);">2</div><div class="st"><strong>₱1,000 to ₱5,000</strong> — split 70% to EF or savings, 30% to wants. Reward yourself a little.</div></div>
+            <div class="si"><div class="sn" style="background:var(--pu-bg);color:var(--pu);">3</div><div class="st"><strong>Above ₱5,000</strong> — split 50% savings, 30% EF boost, 20% investment. This is wealth-building money.</div></div>
+            <div class="si"><div class="sn" style="background:var(--am-bg);color:var(--am);">4</div><div class="st"><strong>Never</strong> treat side income as "extra spending money." It is extra wealth-building fuel.</div></div>
+          </div>
+        </div>
+
+        <!-- LOG -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Income log</div>
+            <button onclick="clearSideIncome()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Clear all</button>
+          </div>
+          <div id="si-log"><div class="emp">No entries yet.</div></div>
+        </div>
+
+      </div>
+
+      <div id="tab-settings" class="sec">
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Fixed monthly expenses</div>
+            <button class="sm-btn" onclick="showAddFixedModal()" style="color:var(--gr);border-color:var(--gr);">+ Add expense</button>
+          </div>
+          <div id="fixed-exp-list"></div>
+          <div class="tr"><span style="color:var(--mu)">Monthly total</span><span id="s-tot" style="color:var(--bl);font-family:DM Mono,monospace;">₱0</span></div>
+          <div style="font-size:11px;color:var(--hi);margin-top:4px;">Weekly share: <span id="s-wk" style="color:var(--bl)">₱0</span></div>
+        </div>
+        <div class="card"><div class="ct2">Emergency fund target</div><input type="number" id="s-ef-tgt" value="36000" oninput="updEF()"><div style="font-size:11px;color:var(--mu);margin-top:5px;">Recommended: ₱36,000 (6 months)</div></div>
+        <div class="ver">v5.5 · GenSan Budget App · Final Edition · 2026</div>
+      </div>
+
+      <!-- ADD FIXED EXPENSE MODAL -->
+      <div id="fixed-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;align-items:center;justify-content:center;padding:20px;">
+        <div style="background:var(--sur);border-radius:var(--r);padding:20px;width:100%;max-width:400px;border:1px solid var(--bd2);">
+          <div style="font-size:15px;font-weight:700;margin-bottom:14px;">Add fixed expense</div>
+          <div style="margin-bottom:9px;"><label>Expense name</label><input type="text" id="fx-name" placeholder="e.g. Streaming service"></div>
+          <div class="g2">
+            <div><label>Amount (₱/month)</label><input type="number" id="fx-amt" placeholder="299" inputmode="numeric"></div>
+            <div><label>Due day of month</label><input type="number" id="fx-day" placeholder="1" min="1" max="31"></div>
+          </div>
+          <div style="margin-bottom:14px;"><label>Category</label>
+            <select id="fx-cat">
+              <option value="fitness">Fitness</option>
+              <option value="utilities">Utilities</option>
+              <option value="internet">Internet</option>
+              <option value="subscription">Subscription</option>
+              <option value="coaching">Coaching</option>
+              <option value="transport">Transport</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-gh" style="flex:1;" onclick="hideAddFixedModal()">Cancel</button>
+            <button class="btn btn-gr" style="flex:1;" onclick="addFixedExp()">Add expense</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PUBLIC MODE -->
+  <div id="mode-public" style="display:none;padding:14px 16px 50px;">
+    <div class="pub-hero"><div style="font-size:20px;font-weight:700;margin-bottom:4px;">Budget Calculator</div><div style="font-size:13px;color:var(--mu);line-height:1.6;">Enter salary. Get your exact breakdown.</div></div>
+    <div class="card"><div class="g2"><div><label>Salary (₱)</label><input type="number" id="pub-sal" value="10000" inputmode="numeric" oninput="pubCalc()"></div><div><label>Frequency</label><select id="pub-freq" onchange="pubCalc()"><option value="weekly">Weekly</option><option value="bimonthly">Semi-monthly</option><option value="monthly">Monthly</option><option value="daily">Daily wage</option></select></div></div><div class="g3"><div><label>Needs %</label><input type="number" id="pub-np" value="50" min="1" oninput="pubCalc()"></div><div><label>Wants %</label><input type="number" id="pub-wp" value="30" min="1" oninput="pubCalc()"></div><div><label>Savings %</label><input type="number" id="pub-sp" value="20" min="1" oninput="pubCalc()"></div></div><div><label>Fixed monthly bills (₱)</label><input type="number" id="pub-fx" value="0" inputmode="numeric" oninput="pubCalc()"></div></div>
+    <div class="bar-wrap"><div class="bseg" id="pb-n" style="background:var(--bl)"></div><div class="bseg" id="pb-w" style="background:var(--am)"></div><div class="bseg" id="pb-s" style="background:var(--gr)"></div></div>
+    <div class="pub-alc" style="background:var(--bl-bg)"><div style="font-size:11px;font-weight:600;color:var(--bl);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;" id="pn-pct">50% NEEDS</div><div style="font-size:24px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);" id="pn-amt">₱5,000</div><div class="dvd" style="margin:8px 0;border-color:rgba(79,142,247,.2)"></div><div class="pub-row" style="color:var(--bl)"><span>After fixed bills</span><span id="pn-rem" style="font-family:DM Mono,monospace;font-weight:600;">₱5,000</span></div><div class="pub-row" style="color:var(--bl)"><span>Daily budget</span><span id="pn-day" style="font-family:DM Mono,monospace;font-weight:600;">₱714</span></div></div>
+    <div class="pub-alc" style="background:var(--am-bg)"><div style="font-size:11px;font-weight:600;color:var(--am);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;" id="pw-pct">30% WANTS</div><div style="font-size:24px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="pw-amt">₱3,000</div><div class="dvd" style="margin:8px 0;border-color:rgba(245,166,35,.2)"></div><div class="pub-row" style="color:var(--am)"><span>Daily allowance</span><span id="pw-day" style="font-family:DM Mono,monospace;font-weight:600;">₱429</span></div></div>
+    <div class="pub-alc" style="background:var(--gr-bg)"><div style="font-size:11px;font-weight:600;color:var(--gr);text-transform:uppercase;letter-spacing:.07em;margin-bottom:3px;" id="ps-pct">20% SAVINGS</div><div style="font-size:24px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);" id="ps-amt">₱2,000</div><div class="dvd" style="margin:8px 0;border-color:rgba(62,207,142,.2)"></div><div class="pub-row" style="color:var(--gr)"><span>Emergency fund (68%)</span><span id="ps-ef" style="font-family:DM Mono,monospace;font-weight:600;">₱1,360</span></div><div class="pub-row" style="color:var(--gr)"><span>Personal savings (32%)</span><span id="ps-ps" style="font-family:DM Mono,monospace;font-weight:600;">₱640</span></div></div>
+    <div class="card"><div class="ct2">Recommended PH banks</div><div class="bank-tip" style="background:var(--te-bg)"><span style="color:var(--te);font-weight:600;">Needs → GoTyme GoSave</span><br><span style="color:var(--mu)">Label "Needs". High interest. Essentials only.</span></div><div class="bank-tip" style="background:var(--am-bg)"><span style="color:var(--am);font-weight:600;">Wants → GoTyme wallet / Maya</span><br><span style="color:var(--mu)">When zero — stop spending until next salary.</span></div><div class="bank-tip" style="background:var(--gr-bg)"><span style="color:var(--gr);font-weight:600;">Savings → Maribank or SeaBank (6% p.a.)</span><br><span style="color:var(--mu)">Highest interest in PH. Park EF and savings here.</span></div></div>
+    <div class="card"><div class="ri"><span class="rl">Monthly income (est.)</span><span class="rv" id="pm-inc">₱0</span></div><div class="ri"><span class="rl">Monthly savings</span><span class="rv" id="pm-sav" style="color:var(--gr)">₱0</span></div><div class="ri"><span class="rl">6-month EF target</span><span class="rv" id="pm-ef">₱0</span></div><div class="ri"><span class="rl">Weeks to EF target</span><span class="rv" id="pm-wk">-- weeks</span></div></div>
+  </div>
+
+  <!-- AI ADVISER MODE (full page) -->
+  <div id="mode-adviser" style="display:none;flex-direction:column;height:calc(100vh - 49px);">
+    <div style="padding:14px 16px;background:var(--sur);border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:12px;flex-shrink:0;">
+      <div style="width:38px;height:38px;border-radius:50%;background:var(--bl-bg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🤖</div>
+      <div style="flex:1;"><div style="font-size:14px;font-weight:700;">AI Financial Adviser</div><div style="font-size:11px;color:var(--gr);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:var(--gr);border-radius:50%;display:inline-block;animation:pulse 2s infinite;"></span>Always on · Works offline · Knows your data</div></div>
+    </div>
+    <div id="adv-ctx" style="padding:7px 16px;background:var(--sur2);border-bottom:1px solid var(--bd);font-size:11px;color:var(--mu);display:flex;gap:7px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;"></div>
+    <div id="adv-msgs" style="flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;"></div>
+    <div style="padding:8px 16px 5px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-shrink:0;" id="adv-quick"></div>
+    <div style="padding:10px 16px 20px;background:var(--sur);border-top:1px solid var(--bd);display:flex;gap:8px;flex-shrink:0;">
+      <textarea id="adv-input" class="chat-input" placeholder="Ask anything about your budget..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" id="adv-send" onclick="sendMsg()">➤</button>
+    </div>
+  </div>
+
+  <!-- FLOATING CHAT BUTTON (visible in personal mode) -->
+  <button class="chat-fab" id="chat-fab" onclick="openChat()" style="display:none;">
+    🤖<div class="notif" id="chat-notif"></div>
+  </button>
+
+  <!-- FLOATING CHAT PANEL -->
+  <div class="chat-panel" id="chat-panel">
+    <div class="chat-hdr">
+      <div class="chat-av">🤖</div>
+      <div class="chat-hdr-info"><div class="chat-hdr-name">AI Financial Adviser</div><div class="chat-hdr-status">Always on · Works offline</div></div>
+      <button class="chat-close" onclick="closeChat()">✕</button>
+    </div>
+    <div class="chat-context-bar" id="chat-ctx"></div>
+    <div class="chat-msgs" id="chat-msgs"></div>
+    <div class="chat-quick" id="chat-quick"></div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" class="chat-input" placeholder="Ask about your budget..." rows="1" onkeydown="handleChatKey(event)" oninput="autoResize(this)"></textarea>
+      <button class="chat-send" id="chat-send" onclick="sendChat()">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<div id="toast" class="toast"></div>
+<script>
+var PROFS=JSON.parse(localStorage.getItem('bgv5_profs')||'[]');
+var CUR='';
+var isDark=localStorage.getItem('bgv5_theme')!=='light';
+var budgetMode='pct';
+var chartView='weekly';
+var lockOn=false,lockBudget=0;
+var calMo=new Date().getMonth(),calYr=new Date().getFullYear();
+var moView=new Date().getMonth(),moYrView=new Date().getFullYear();
+var MO=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var CAT_L={food:'Food',transpo:'Transpo',load:'Load',personal:'Personal',delivery:'Delivery',shopping:'Shopping',entertainment:'Entertain',social:'Social',misc:'Misc'};
+var CAT_C={food:'var(--bl)',transpo:'var(--pu)',load:'var(--gr)',personal:'var(--pk)',delivery:'var(--am)',shopping:'var(--rd)',entertainment:'var(--pu)',social:'var(--am)',misc:'var(--mu)'};
+var QUICK_PROMPTS=['How much can I spend today?','How much should I invest this week?','Can I start MP2 now?','Should I buy REITs or UITF first?','Am I ready to invest?','What is my current DTI?','How long until my EF goal?','Show my full budget summary','Am I on track this month?','How much will I have at 30 if I invest now?'];
+var chatHistory=[];
+var advHistory=[];
+
+function p(n){return '₱'+Math.round(n).toLocaleString();}
+function applyTheme(){document.body.classList.toggle('lm',!isDark);document.getElementById('theme-btn').textContent=isDark?'☀':'☾';}
+function toggleTheme(){isDark=!isDark;localStorage.setItem('bgv5_theme',isDark?'dark':'light');applyTheme();}
+function D(k){return localStorage.getItem('bgv5_'+CUR+'_'+k);}
+function DS(k,v){localStorage.setItem('bgv5_'+CUR+'_'+k,typeof v==='object'?JSON.stringify(v):v);}
+function DJ(k,d){try{return JSON.parse(D(k))||d;}catch(e){return d;}}
+
+// PROFILES
+function renderProfs(){
+  var colors=['var(--bl)','var(--gr)','var(--am)','var(--pu)','var(--pk)','var(--te)'];
+  document.getElementById('prof-list').innerHTML=PROFS.length?PROFS.map(function(pr,i){return'<div class="prof-item" onclick="selProf(\''+pr.id+'\')"><div class="prof-av" style="color:'+colors[i%6]+'">'+pr.emoji+'</div><div><div style="font-size:13px;font-weight:600;">'+pr.name+'</div><div style="font-size:11px;color:var(--mu);">Tap to open</div></div></div>';}).join(''):'<div style="text-align:center;padding:12px;color:var(--hi);font-size:13px;">Create a profile to start.</div>';
+}
+function createProf(){
+  var name=document.getElementById('new-name').value.trim();
+  var emoji=document.getElementById('new-emoji').value.trim()||'😊';
+  if(!name)return;
+  var id='p'+Date.now();
+  PROFS.push({id,name,emoji});
+  localStorage.setItem('bgv5_profs',JSON.stringify(PROFS));
+  document.getElementById('new-name').value='';document.getElementById('new-emoji').value='';
+  selProf(id);
+}
+function selProf(id){
+  CUR=id;
+  var pr=PROFS.find(function(x){return x.id===id;});
+  if(pr){document.getElementById('hdr-nm').textContent=pr.name+"'s Budget";}
+  document.getElementById('prof-screen').style.display='none';
+  document.getElementById('main-app').style.display='flex';
+  document.getElementById('chat-fab').style.display='flex';
+  initApp();
+}
+function showProfs(){document.getElementById('prof-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('chat-fab').style.display='none';renderProfs();}
+
+function initApp(){renderFixedExps();calc();renderLoans();renderBills();renderCalendar();renderHist();updEF();renderSpending();renderGoals();updNW();calcMP2();calcInt();renderMonthly();renderForecast();calcStreak();renderCharts();updDTI();renderPayoffMotivator();checkBillAutoReset();renderInvests();renderInvestReadiness();calcInvPlan();renderSideIncome();initChat();}
+
+// SETTINGS
+function getFixedExps(){return DJ('fixedExps',[{id:1,name:'Gym',amt:1000,day:1,cat:'fitness'},{id:2,name:'Coach',amt:1500,day:1,cat:'coaching'},{id:3,name:'Home electricity',amt:600,day:1,cat:'utilities'},{id:4,name:'BH electricity',amt:600,day:1,cat:'utilities'},{id:5,name:'WiFi',amt:600,day:1,cat:'internet'}]);}
+function getS(){var exps=getFixedExps();var mo=exps.reduce(function(a,e){return a+e.amt;},0);return{fixedMonthly:mo,efTgt:+document.getElementById('s-ef-tgt').value||36000};}
+function saveSet(){var s=getS();document.getElementById('s-tot').textContent=p(s.fixedMonthly);document.getElementById('s-wk').textContent=p(s.fixedMonthly/4);document.getElementById('a-fix').textContent=p(s.fixedMonthly/4);renderFixedExps();calc();updEF();}
+function renderFixedExps(){
+  var exps=getFixedExps();
+  var catClr={fitness:'#f472b6',utilities:'#4f8ef7',internet:'#2dd4bf',subscription:'#a78bfa',coaching:'#f5a623',transport:'#fb923c',other:'#8b8fa8'};
+  if(!exps.length){
+    document.getElementById('fixed-exp-list').innerHTML='<div style="text-align:center;padding:10px 0;color:#555870;font-size:13px;">No fixed expenses. Add one above.</div>';
+    document.getElementById('s-tot').textContent='0';
+    document.getElementById('s-wk').textContent='0';
+    document.getElementById('a-fix').textContent='0';
+    return;
+  }
+  var html='';
+  for(var i=0;i<exps.length;i++){
+    var e=exps[i];
+    var clr=catClr[e.cat]||'#8b8fa8';
+    html+='<div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);">';
+    html+='<div style="display:flex;align-items:center;gap:10px;">';
+    html+='<div style="width:9px;height:9px;border-radius:50%;background:'+clr+';flex-shrink:0;"></div>';
+    html+='<div>';
+    html+='<div style="font-size:13px;font-weight:500;">'+e.name+'</div>';
+    html+='<div style="font-size:10px;color:var(--hi);">Due day '+e.day+' &middot; '+e.cat+'</div>';
+    html+='</div></div>';
+    html+='<div style="display:flex;align-items:center;gap:10px;">';
+    html+='<span style="font-weight:600;font-size:13px;color:var(--am);">'+p(e.amt)+'</span>';
+    html+='<button onclick="delFixedExp('+e.id+')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:18px;line-height:1;padding:0 2px;">x</button>';
+    html+='</div></div>';
+  }
+  document.getElementById('fixed-exp-list').innerHTML=html;
+  var mo=exps.reduce(function(a,e){return a+e.amt;},0);
+  document.getElementById('s-tot').textContent=p(mo);
+  document.getElementById('s-wk').textContent=p(mo/4);
+  document.getElementById('a-fix').textContent=p(mo/4);
+}
+function showAddFixedModal(){document.getElementById('fixed-modal').style.display='flex';document.getElementById('fx-name').focus();}
+function hideAddFixedModal(){document.getElementById('fixed-modal').style.display='none';document.getElementById('fx-name').value='';document.getElementById('fx-amt').value='';document.getElementById('fx-day').value='';}
+function addFixedExp(){
+  var nm=document.getElementById('fx-name').value.trim();var amt=+document.getElementById('fx-amt').value||0;var day=+document.getElementById('fx-day').value||1;var cat=document.getElementById('fx-cat').value;
+  if(!nm||!amt){showToast('Enter a name and amount','warn');return;}
+  var exps=getFixedExps();exps.push({id:Date.now(),name:nm,amt:amt,day:day,cat:cat});DS('fixedExps',exps);
+  hideAddFixedModal();saveSet();showToast(nm+' added — ₱'+amt+'/month','ok');
+}
+function delFixedExp(id){
+  if(!confirm('Remove this expense?'))return;
+  var exps=getFixedExps().filter(function(e){return e.id!==id;});DS('fixedExps',exps);saveSet();showToast('Expense removed','info');
+}
+
+// BUDGET SPLIT
+function getBM(av){
+  if(budgetMode==='pct'){var np=(+document.getElementById('bm-np').value||50)/100,wp=(+document.getElementById('bm-wp').value||30)/100,sp=(+document.getElementById('bm-sp').value||20)/100;return{n:av*np,w:av*wp,s:av*sp,np:np*100,wp:wp*100,sp:sp*100};}
+  var fn=+document.getElementById('bm-fn').value||0,fw=+document.getElementById('bm-fw').value||0,fs=+document.getElementById('bm-fs').value||0;
+  var sv=fs>0?fs:av*.20,w=fw>0?fw:av*.30,n=av-w-sv;
+  return{n:Math.max(0,n),w:Math.max(0,w),s:Math.max(0,sv),np:Math.round(n/av*100)||0,wp:Math.round(w/av*100)||0,sp:Math.round(sv/av*100)||0};
+}
+function setBM(m){budgetMode=m;document.getElementById('bm-pct').style.display=m==='pct'?'block':'none';document.getElementById('bm-fix').style.display=m==='fix'?'block':'none';document.getElementById('mt-pct').classList.toggle('active',m==='pct');document.getElementById('mt-fix').classList.toggle('active',m==='fix');calc();}
+
+// CALCULATE
+function calc(){
+  var sal=+document.getElementById('sal').value||0;
+  var s=getS();var fw=(s.gym+s.coach+s.e1+s.e2+s.wifi+s.oth)/4;
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,sal-lnAmt);
+  var sp=getBM(av);var n=sp.n,w=sp.w,sv=sp.s;
+  var ef=sv*.68,ps=sv*.32;
+  var nr=n-fw,food=Math.max(0,nr*.54),tr=Math.max(0,nr*.27),ld=Math.max(0,nr*.08),pc=Math.max(0,nr*.11);
+  document.getElementById('results').style.display='block';
+  document.getElementById('r-sal').textContent=p(sal);document.getElementById('r-ln').textContent=p(lnAmt);document.getElementById('r-av').textContent=p(av);
+  document.getElementById('n-tot').textContent=p(n);document.getElementById('w-tot').textContent=p(w);document.getElementById('s-tot').textContent=p(sv);
+  document.getElementById('s-ef').textContent=p(ef);document.getElementById('s-ps').textContent=p(ps);
+  document.getElementById('a-food').textContent=p(food);document.getElementById('a-tr').textContent=p(tr);document.getElementById('a-ld').textContent=p(ld);document.getElementById('a-pc').textContent=p(pc);
+  document.getElementById('w1').textContent=p(w*.27);document.getElementById('w2').textContent=p(w*.23);document.getElementById('w3').textContent=p(w*.32);document.getElementById('w4').textContent=p(w*.18);
+  document.getElementById('act1').textContent=p(sv);document.getElementById('act2').textContent=p(Math.max(0,nr));document.getElementById('act3').textContent=p(w);document.getElementById('act4').textContent=p(fw);
+  document.getElementById('bar-n').style.width=sp.np+'%';document.getElementById('bar-w').style.width=sp.wp+'%';document.getElementById('bar-s').style.width=sp.sp+'%';
+  document.getElementById('ck-sv').textContent=p(sv)+' → Maribank';document.getElementById('ck-nd').textContent=p(Math.max(0,nr))+' — label "Needs"';document.getElementById('ck-wt').textContent=p(w)+' — stop at zero';
+  if(lnAmt>0){document.getElementById('ln-step').style.display='flex';document.getElementById('act-ln').textContent=p(lnAmt);document.getElementById('ck-loan-r').style.display='flex';document.getElementById('ck-ln').textContent=p(lnAmt);}
+  else{document.getElementById('ln-step').style.display='none';document.getElementById('ck-loan-r').style.display='none';}
+  if(lockOn){lockBudget=w;updLock();}document.getElementById('lock-amt').textContent=p(w);document.getElementById('lock-st').textContent=lockOn?'Locked':'Tap lock to activate';
+  var pct=sp.np+sp.wp+sp.sp;var pc2=document.getElementById('pct-chk');if(pc2){pc2.textContent='Total: '+pct+'%'+(pct===100?' ✓':' ⚠');pc2.style.color=pct===100?'var(--gr)':'var(--rd)';}
+  var ab='';
+  if(lnAmt>0) ab+='<div class="alt a-d">Loan deducted: '+p(lnAmt)+'. Set aside in Maribank pocket now.</div>';
+  if(nr<600&&nr>0) ab+='<div class="alt a-w">Needs tight after fixed bills. Cook at home this week.</div>';
+  if(lnAmt===0) ab+='<div class="alt a-ok">Clean week — full budget in effect.</div>';
+  if(sal>9000) ab+='<div class="alt a-ok">Strong week! Boost your emergency fund deposit.</div>';
+  if(sal<5000&&sal>0) ab+='<div class="alt a-w">Low income week. Protect savings. Cut wants if needed.</div>';
+  document.getElementById('alert-box').innerHTML=ab;
+  calcHS(sal,sv,av,w);updCtxBar();
+}
+
+function saveEntry(){
+  var sal=+document.getElementById('sal').value||0;
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var date=document.getElementById('paydate').value||new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+  var wf=document.getElementById('wfrom').value||'?';var wt=document.getElementById('wto').value||'?';
+  var s=getS();var av=Math.max(0,sal-lnAmt);var sp=getBM(av);var ef=Math.round(sp.s*.68);
+  var now=new Date();var HD=DJ('hist',[]);
+  HD.unshift({date,work:wf+' – '+wt,sal,loan:lnAmt,ef,sav:Math.round(sp.s),n:Math.round(sp.n),w:Math.round(sp.w),wk:+document.getElementById('cycle').value,mo:now.getMonth(),yr:now.getFullYear()});
+  DS('hist',HD);renderHist();renderMonthly();renderForecast();calcStreak();renderCharts();
+  showToast('Week saved — '+p(sal)+' recorded','ok','💰');flashCard('tab-budget');
+}
+
+// LOANS
+function addLoan(){
+  var nm=document.getElementById('ln-nm').value.trim();var orig=+document.getElementById('ln-orig').value||0;
+  if(!nm||!orig)return;
+  var loans=DJ('loans',[]);
+  loans.push({id:Date.now(),name:nm,type:document.getElementById('ln-type').value,orig,bal:+document.getElementById('ln-bal').value||orig,int:+document.getElementById('ln-int').value||0,pay:+document.getElementById('ln-pay').value||0,due:+document.getElementById('ln-due').value||1,auto:document.getElementById('ln-auto').value,active:true});
+  DS('loans',loans);document.getElementById('ln-nm').value='';document.getElementById('ln-orig').value='';document.getElementById('ln-bal').value='';document.getElementById('ln-pay').value='';
+  renderLoans();updAutoLnSel();updDTI();updNW();showToast('Loan added — '+nm,'ok','💳');
+}
+function renderLoans(){
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  if(!loans.length){document.getElementById('loans-list').innerHTML='<div class="emp">No loans. Add one above.</div>';return;}
+  var now=new Date().getDate();
+  document.getElementById('loans-list').innerHTML=loans.map(function(l,i){
+    var paid=Math.round(((l.orig-l.bal)/l.orig)*100);var dl=l.due-now;if(dl<0)dl+=30;
+    var cls=dl<=3?'overdue':dl<=7?'due-soon':'ok';
+    var int=l.bal*(l.int/100);var mos=l.int>0&&l.pay>int?Math.ceil(l.bal/(l.pay-int)):null;
+    return'<div class="loan-item '+cls+'"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><div><div style="font-size:13px;font-weight:600;">'+l.name+'</div><div style="display:flex;gap:5px;margin-top:3px;"><span class="bdg b-g">'+l.type+'</span>'+(dl<=3?'<span class="bdg b-d">'+dl+'d left</span>':dl<=7?'<span class="bdg b-w">'+dl+'d</span>':'<span class="bdg b-ok">Day '+l.due+'</span>')+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--rd)">'+p(l.bal)+'</div></div></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="flex:1;background:var(--sur);height:5px;border-radius:3px;overflow:hidden;"><div style="height:5px;border-radius:3px;background:var(--gr);width:'+paid+'%;"></div></div><span style="font-size:10px;color:var(--gr);font-weight:600;">'+paid+'%</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:7px;font-size:11px;"><div style="color:var(--mu)">Payment<div style="color:var(--tx);font-weight:600;">'+p(l.pay)+'</div></div><div style="color:var(--mu)">Interest/mo<div style="color:var(--rd);font-weight:600;">'+p(int)+'</div></div><div style="color:var(--mu)">Payoff<div style="color:var(--bl);font-weight:600;">'+(mos?mos+'mo':'N/A')+'</div></div></div><div style="display:flex;gap:5px;"><button onclick="payLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--mu);">Log payment</button><button onclick="closeLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--gr);">Mark paid</button><button onclick="delLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--rd);">Delete</button></div></div>';
+  }).join('');
+}
+function payLoan(i){var loans=DJ('loans',[]).filter(function(l){return l.active;});var a=prompt('Payment amount (₱):');if(!a)return;loans[i].bal=Math.max(0,loans[i].bal-parseFloat(a));var all=DJ('loans',[]);var ai=all.findIndex(function(l){return l.id===loans[i].id;});if(ai>-1)all[ai]=loans[i];DS('loans',all);renderLoans();updDTI();updNW();}
+function closeLoan(i){var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active[i].bal=0;active[i].active=false;DS('loans',loans);renderLoans();updAutoLnSel();updDTI();updNW();}
+function delLoan(i){var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active.splice(i,1);var rest=loans.filter(function(l){return !l.active;});DS('loans',active.concat(rest));renderLoans();updAutoLnSel();updDTI();updNW();}
+function updAutoLnSel(){var loans=DJ('loans',[]).filter(function(l){return l.active&&l.auto==='yes';});var sel=document.getElementById('auto-ln');sel.innerHTML='<option value="0">None this week</option>'+loans.map(function(l){return'<option value="'+l.pay+'">'+l.name+' — '+p(l.pay)+'</option>';}).join('');}
+function updDTI(){var loans=DJ('loans',[]).filter(function(l){return l.active;});var tp=loans.reduce(function(a,l){return a+l.pay;},0);var sal=(+document.getElementById('sal').value||7373)*4;var dti=sal>0?Math.round((tp/sal)*100):0;document.getElementById('dti-n').textContent=dti+'%';document.getElementById('dti-n').style.color=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-bar').style.width=Math.min(100,dti)+'%';document.getElementById('dti-bar').style.background=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-alt').innerHTML=dti===0?'<div class="alt a-ok">No active loans. Excellent.</div>':dti<30?'<div class="alt a-ok">DTI '+dti+'% — Safe zone.</div>':dti<40?'<div class="alt a-w">DTI '+dti+'% — Caution. Avoid new loans.</div>':'<div class="alt a-d">DTI '+dti+'% — DANGER. No new loans.</div>';}
+
+// BILLS
+function addBill(){var nm=document.getElementById('bl-nm').value.trim();if(!nm)return;var bills=DJ('bills',[]);bills.push({id:Date.now(),name:nm,amt:+document.getElementById('bl-amt').value||0,day:+document.getElementById('bl-day').value||1,cat:document.getElementById('bl-cat').value});DS('bills',bills);document.getElementById('bl-nm').value='';document.getElementById('bl-amt').value='';renderBills();renderCalendar();}
+function delBill(id){DS('bills',DJ('bills',[]).filter(function(b){return b.id!==id;}));renderBills();renderCalendar();}
+function renderBills(){var bills=DJ('bills',[]);if(!bills.length){document.getElementById('bills-list').innerHTML='<div class="emp">No bills added.</div>';document.getElementById('bills-tr').style.display='none';return;}var tot=0,now=new Date().getDate();bills.sort(function(a,b){return a.day-b.day;});document.getElementById('bills-list').innerHTML=bills.map(function(b){tot+=b.amt;var d=b.day-now;return'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);font-size:12px;"><div><div style="font-size:13px;font-weight:600;">'+b.name+'</div><div style="display:flex;gap:5px;margin-top:2px;">'+(d<0?'<span class="bdg b-d">Overdue</span>':d===0?'<span class="bdg b-d">TODAY</span>':d<=3?'<span class="bdg b-w">'+d+'d</span>':'<span class="bdg b-ok">Day '+b.day+'</span>')+'<span class="bdg b-g">'+b.cat+'</span></div></div><div style="display:flex;align-items:center;gap:7px;"><span style="font-family:\'DM Mono\',monospace;font-weight:600;color:var(--am);">'+p(b.amt)+'</span><button onclick="delBill('+b.id+')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:14px;">×</button></div></div>';}).join('');document.getElementById('bills-tr').style.display='flex';document.getElementById('bills-tot').textContent=p(tot);}
+function renderCalendar(){var bills=DJ('bills',[]);var bd={};bills.forEach(function(b){bd[b.day]=(bd[b.day]||[]).concat(b.name);});document.getElementById('cal-lbl').textContent=MO[calMo]+' '+calYr;var days=['Su','Mo','Tu','We','Th','Fr','Sa'];var html=days.map(function(d){return'<div class="cal-dh">'+d+'</div>';}).join('');var first=new Date(calYr,calMo,1).getDay();var total=new Date(calYr,calMo+1,0).getDate();var today=new Date();for(var i=0;i<first;i++)html+='<div class="cd emp-d"></div>';for(var d=1;d<=total;d++){var it=d===today.getDate()&&calMo===today.getMonth()&&calYr===today.getFullYear();html+='<div class="cd'+(it?' today':'')+(bd[d]?' has-bill':'')+'"><span>'+d+'</span>'+(bd[d]?'<div class="cd-dot"></div>':'')+'</div>';}document.getElementById('cal-grid').innerHTML=html;}
+function chgCal(d){calMo+=d;if(calMo>11){calMo=0;calYr++;}if(calMo<0){calMo=11;calYr--;}renderCalendar();}
+
+// CHARTS
+function setCVw(v,btn){chartView=v;document.getElementById('cwk').style.cssText='';document.getElementById('cmo').style.cssText='';btn.style.color='var(--bl)';btn.style.borderColor='var(--bl)';renderCharts();}
+function renderCharts(){var HD=DJ('hist',[]);if(!HD.length){document.getElementById('bar-chart').innerHTML='<div style="width:100%;text-align:center;color:var(--hi);font-size:13px;padding:28px 0;">No history yet.</div>';return;}var data=[];if(chartView==='weekly'){data=HD.slice(0,8).reverse().map(function(e){return{l:e.date||'Week',i:e.sal,e:e.n+e.w,s:e.sav};});}else{var mm={};HD.forEach(function(e){var k=MO[e.mo].substr(0,3)+' '+String(e.yr).slice(-2);if(!mm[k])mm[k]={i:0,e:0,s:0};mm[k].i+=e.sal;mm[k].e+=e.n+e.w;mm[k].s+=e.sav;});data=Object.entries(mm).slice(-6).map(function(kv){return{l:kv[0],i:kv[1].i,e:kv[1].e,s:kv[1].s};});}var mx=Math.max.apply(null,data.map(function(d){return Math.max(d.i,d.e,d.s);}));var h=100;document.getElementById('bar-chart').innerHTML=data.map(function(d){return'<div class="bg2"><div class="bg2-bars"><div class="bc-col" style="height:'+Math.round(d.i/mx*h)+'px;background:var(--bl);width:10px;"></div><div class="bc-col" style="height:'+Math.round(d.e/mx*h)+'px;background:var(--rd);width:10px;"></div><div class="bc-col" style="height:'+Math.round(d.s/mx*h)+'px;background:var(--gr);width:10px;"></div></div><div class="bc-lbl">'+d.l+'</div></div>';}).join('');var ti=HD.reduce(function(a,e){return a+e.sal;},0);var te=HD.reduce(function(a,e){return a+(e.n||0)+(e.w||0);},0);var ts=HD.reduce(function(a,e){return a+(e.sav||0);},0);document.getElementById('ct-inc').textContent=p(ti);document.getElementById('ct-exp').textContent=p(te);document.getElementById('ct-sav').textContent=p(ts);document.getElementById('ct-rate').textContent=ti>0?Math.round((ts/ti)*100)+'%':'0%';}
+
+// HEALTH SCORE
+function calcHS(sal,sv,av,w){var p1=Math.min(25,Math.round((av>0?sv/av:0)*125));var cd=document.querySelectorAll('#ck-list .cb.done').length,ct=document.querySelectorAll('#ck-list .cb').length;var p2=Math.round((cd/ct)*20);var loans=DJ('loans',[]).filter(function(l){return l.active;});var p3=Math.max(0,20-loans.length*5);var ef=DJ('ef',{bal:0}).bal;var etgt=+document.getElementById('s-ef-tgt').value||36000;var p4=Math.min(20,Math.round((ef/etgt)*20));var tp=loans.reduce(function(a,l){return a+l.pay;},0);var dti=sal>0?(tp/(sal*4))*100:0;var p5=dti<30?15:dti<40?8:0;var tot=p1+p2+p3+p4+p5;var el=document.getElementById('hs-num'),em=document.getElementById('hs-mini');el.textContent=tot;em.textContent=tot;var c=tot>=80?'var(--gr)':tot>=60?'var(--am)':'var(--rd)';el.style.color=c;em.style.color=c;var lbl=tot>=80?'Excellent!':tot>=60?'Good — improve more':tot>=40?'Fair — needs work':'Action needed now';document.getElementById('hs-lbl').textContent=lbl;document.getElementById('hs-mini-l').textContent=lbl;document.getElementById('hs-bar').style.width=tot+'%';document.getElementById('hs-bar').style.background=c;document.getElementById('hs-ring').style.strokeDashoffset=150-(150*(tot/100));document.getElementById('hs-ring').style.stroke=c;document.getElementById('hp1').textContent=p1+'/25';document.getElementById('hp2').textContent=p2+'/20';document.getElementById('hp3').textContent=p3+'/20';document.getElementById('hp4').textContent=p4+'/20';document.getElementById('hp5').textContent=p5+'/15';var adv='';if(sv/av<.2)adv+='<div class="alt a-w">Savings below 20%. Increase savings allocation.</div>';if(ef<etgt*.5)adv+='<div class="alt a-w">EF below 50% of target. Boost weekly deposits.</div>';if(dti>30)adv+='<div class="alt a-d">DTI above 30%. Avoid new loans.</div>';if(tot>=80)adv+='<div class="alt a-ok">Outstanding week! Stay consistent.</div>';document.getElementById('hs-adv').innerHTML=adv;}
+
+// MP2
+function calcMP2(){var mo=+document.getElementById('mp2-mo').value||500;var yrs=+document.getElementById('mp2-yr').value||5;var rate=(+document.getElementById('mp2-rate').value||7)/100;var tot=0,contrib=mo*12*yrs,html='';for(var y=1;y<=yrs;y++){tot=(tot+mo*12)*(1+rate);html+='<div class="ri"><span class="rl">Year '+y+'</span><span class="rv" style="color:var(--pu)">'+p(tot)+'</span></div>';}document.getElementById('mp2-res').textContent=p(tot);document.getElementById('mp2-sub').textContent='After '+yrs+'yrs at '+(+document.getElementById('mp2-rate').value||7)+'%';document.getElementById('mp2-c').textContent=p(contrib);document.getElementById('mp2-d').textContent=p(tot-contrib);document.getElementById('mp2-roi').textContent=Math.round(((tot-contrib)/contrib)*100)+'%';document.getElementById('mp2-yr-list').innerHTML=html;}
+
+// INTEREST
+function calcInt(){var bal=+document.getElementById('int-bal').value||0;var bk=document.getElementById('int-bank');var r=bk.value==='custom'?+document.getElementById('int-cv').value:+bk.value;document.getElementById('int-cr').style.display=bk.value==='custom'?'block':'none';var rate=r/100;var dy=bal*rate/365;var mo=bal*rate/12;var yr=bal*rate;document.getElementById('int-mo-e').textContent=p(mo);document.getElementById('int-dy').textContent='₱'+(dy.toFixed(2));document.getElementById('int-mo').textContent=p(mo);document.getElementById('int-yr').textContent=p(yr);document.getElementById('int-1y').textContent=p(bal*Math.pow(1+rate,1));document.getElementById('int-3y').textContent=p(bal*Math.pow(1+rate,3));document.getElementById('int-5y').textContent=p(bal*Math.pow(1+rate,5));}
+
+// LOCK
+function toggleLock(){lockOn=!lockOn;var w=+document.getElementById('w-tot').textContent.replace(/[₱,]/g,'')||0;lockBudget=w;document.getElementById('lock-btn').textContent=lockOn?'🔒 On':'🔓 Off';document.getElementById('lock-icon').textContent=lockOn?'🔒':'🔓';document.getElementById('lock-st').textContent=lockOn?'Locked at '+p(lockBudget):'Tap to activate';document.getElementById('lock-prog').style.display=lockOn?'block':'none';if(lockOn)updLock();}
+function updLock(){var SP=DJ('sp',[]);var wc=['delivery','shopping','entertainment','social','misc'];var spent=SP.filter(function(e){return wc.includes(e.cat);}).reduce(function(a,e){return a+e.amt;},0);var rem=Math.max(0,lockBudget-spent);var pct=lockBudget>0?Math.min(100,Math.round((spent/lockBudget)*100)):0;document.getElementById('lock-bar').style.width=pct+'%';document.getElementById('lock-bar').style.background=pct<70?'var(--gr)':pct<90?'var(--am)':'var(--rd)';document.getElementById('lk-spent').textContent=p(spent)+' spent';document.getElementById('lk-rem').textContent=p(rem)+' left';}
+
+// SPENDING
+function addSpend(){var amt=+document.getElementById('sp-amt').value||0;var cat=document.getElementById('sp-cat').value;if(amt<=0)return;var SP=DJ('sp',[]);SP.unshift({amt,cat,note:document.getElementById('sp-note').value||CAT_L[cat],date:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'})});DS('sp',SP);document.getElementById('sp-amt').value='';document.getElementById('sp-note').value='';renderSpending();if(lockOn)updLock();}
+function delSpend(i){var SP=DJ('sp',[]);SP.splice(i,1);DS('sp',SP);renderSpending();if(lockOn)updLock();}
+function clearSpends(){if(confirm('Clear?')){DS('sp',[]);renderSpending();if(lockOn)updLock();}}
+function renderSpending(){var SP=DJ('sp',[]);var sal=+document.getElementById('sal').value||7373;var av=sal;var sp=getBM(av);var tots={};SP.forEach(function(e){tots[e.cat]=(tots[e.cat]||0)+e.amt;});var grand=Object.values(tots).reduce(function(a,b){return a+b;},0);if(!Object.keys(tots).length){document.getElementById('sp-cats').innerHTML='<div class="emp">No expenses yet.</div>';document.getElementById('sp-tot').textContent='₱0';}else{document.getElementById('sp-cats').innerHTML=Object.keys(tots).map(function(cat){var s=tots[cat],bgt=sp.w*.25,pct=Math.min(100,Math.round((s/bgt)*100)),over=s>bgt;return'<div style="display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);"><span style="font-size:12px;font-weight:500;width:80px;flex-shrink:0;">'+CAT_L[cat]+'</span><div style="flex:1;margin:0 8px;background:var(--sur2);height:5px;border-radius:3px;overflow:hidden;"><div style="height:5px;border-radius:3px;background:'+(over?'var(--rd)':CAT_C[cat]||'var(--bl)')+';width:'+pct+'%;"></div></div><span style="font-size:11px;font-family:\'DM Mono\',monospace;font-weight:600;min-width:60px;text-align:right;color:'+(over?'var(--rd)':'var(--tx)')+'">'+p(s)+'</span></div>';}).join('');document.getElementById('sp-tot').textContent=p(grand);}document.getElementById('sp-log').innerHTML=SP.length?SP.map(function(e,i){return'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;"><div><div style="font-weight:500;">'+e.note+'</div><div style="font-size:10px;color:var(--mu);">'+(e.date||'')+' · '+CAT_L[e.cat]+'</div></div><div style="display:flex;align-items:center;gap:5px;"><span style="font-family:\'DM Mono\',monospace;font-weight:600;color:var(--rd);">-'+p(e.amt)+'</span><button onclick="delSpend('+i+')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:14px;">×</button></div></div>';}).join(''):'<div class="emp">No entries.</div>';}
+
+// MONTHLY
+function chgMo(d){moView+=d;if(moView>11){moView=0;moYrView++;}if(moView<0){moView=11;moYrView--;}renderMonthly();}
+function renderMonthly(){document.getElementById('mo-lbl').textContent=MO[moView]+' '+moYrView;var HD=DJ('hist',[]).filter(function(e){return e.mo===moView&&e.yr===moYrView;});var i=HD.reduce(function(a,e){return a+e.sal;},0);var s=HD.reduce(function(a,e){return a+(e.sav||0);},0);var n=HD.reduce(function(a,e){return a+(e.n||0);},0);var w=HD.reduce(function(a,e){return a+(e.w||0);},0);var l=HD.reduce(function(a,e){return a+(e.loan||0);},0);var r=i>0?Math.round((s/i)*100):0;document.getElementById('su-i').textContent=p(i);document.getElementById('su-s').textContent=p(s);document.getElementById('su-n').textContent=p(n);document.getElementById('su-w').textContent=p(w);document.getElementById('su-l').textContent=p(l);document.getElementById('su-r').textContent=r+'%';document.getElementById('su-r').style.color=r>=20?'var(--gr)':r>=10?'var(--am)':'var(--rd)';}
+function renderForecast(){var HD=DJ('hist',[]);if(!HD.length){document.getElementById('fc-ct').innerHTML='<div class="emp" style="padding:10px 0;">Log 1 week first.</div>';return;}var avg=HD.reduce(function(a,e){return a+e.sal;},0)/HD.length;var mo=avg*4;var la=new Date()<new Date('2026-05-07');document.getElementById('fc-ct').innerHTML='<div class="ri"><span class="rl">Avg weekly</span><span class="rv">'+p(avg)+'</span></div><div class="ri"><span class="rl">Est. monthly</span><span class="rv">'+p(mo)+'</span></div>'+(la?'<div class="alt a-w" style="margin-top:7px;">Loan due May 7. Set aside ₱2,753.34 Week 4.</div>':'<div class="alt a-ok" style="margin-top:7px;">Debt free. Redirect ₱2,753/mo to MP2 + savings.</div>');}
+
+// NET WORTH
+function updNW(){var mb=+document.getElementById('nw-mb').value||0;var gt=+document.getElementById('nw-gt').value||0;var c=+document.getElementById('nw-c').value||0;var o=+document.getElementById('nw-o').value||0;var loans=DJ('loans',[]).filter(function(l){return l.active;});var debt=loans.reduce(function(a,l){return a+l.bal;},0);var assets=mb+gt+c+o;var nw=assets-debt;document.getElementById('nw-tot').textContent=p(nw);document.getElementById('nw-tot').style.color=nw>=0?'var(--gr)':'var(--rd)';document.getElementById('nw-a').textContent=p(assets);document.getElementById('nw-d').textContent=p(debt);}
+
+// GOALS
+function addGoal(){var nm=document.getElementById('gl-nm').value.trim();var tgt=+document.getElementById('gl-tgt').value||0;if(!nm||!tgt)return;var GL=DJ('goals',[]);GL.push({id:Date.now(),name:nm,tgt,sav:+document.getElementById('gl-sv').value||0,wk:+document.getElementById('gl-wk').value||0});DS('goals',GL);document.getElementById('gl-nm').value='';document.getElementById('gl-tgt').value='';document.getElementById('gl-sv').value='0';document.getElementById('gl-wk').value='';renderGoals();}
+function delGoal(id){DS('goals',DJ('goals',[]).filter(function(g){return g.id!==id;}));renderGoals();}
+function renderGoals(){var GL=DJ('goals',[]);if(!GL.length){document.getElementById('goals-list').innerHTML='<div class="emp">No goals yet.</div>';return;}document.getElementById('goals-list').innerHTML=GL.map(function(g){var pct=Math.min(100,Math.round((g.sav/g.tgt)*100));var rem=Math.max(0,g.tgt-g.sav);var wks=g.wk>0?Math.ceil(rem/g.wk):null;return'<div style="background:var(--sur2);border-radius:var(--rs);padding:11px;margin-bottom:7px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;"><span style="font-size:13px;font-weight:600;">'+g.name+'</span><button onclick="delGoal('+g.id+')" style="background:none;border:none;color:var(--hi);cursor:pointer;font-size:13px;">×</button></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:4px;"><span>'+p(g.sav)+' / '+p(g.tgt)+'</span><span style="color:var(--pu);font-weight:600;">'+pct+'%</span></div><div class="pw" style="margin:0 0 4px"><div class="pf" style="width:'+pct+'%;background:var(--pu)"></div></div>'+(wks?'<div style="font-size:10px;color:var(--hi)">'+p(g.wk)+'/wk → '+wks+' weeks to go</div>':'')+'</div>';}).join('');}
+
+// EF
+function addDep(){var amt=+document.getElementById('ef-amt').value||0;var note=document.getElementById('ef-note').value||'Deposit';if(amt<=0)return;var ef=DJ('ef',{bal:0,log:[]});ef.bal+=amt;ef.log.unshift({amt,note,date:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'})});DS('ef',ef);document.getElementById('ef-note').value='';updEF();}
+function updEF(){var ef=DJ('ef',{bal:0,log:[]});var tgt=+document.getElementById('s-ef-tgt').value||36000;var pct=Math.min(100,Math.round((ef.bal/tgt)*100));var rem=Math.max(0,tgt-ef.bal);document.getElementById('ef-bal').textContent=p(ef.bal);document.getElementById('ef-bar').style.width=pct+'%';document.getElementById('ef-pct').textContent=pct+'%';document.getElementById('ef-rem').textContent=ef.bal>=tgt?'Goal reached!':p(rem)+' remaining';document.getElementById('ef-tl').textContent=p(tgt);document.getElementById('p1').textContent=rem<=0?'Done!':Math.ceil(rem/1000)+'w';document.getElementById('p2').textContent=rem<=0?'Done!':Math.ceil(rem/1500)+'w';document.getElementById('p3').textContent=rem<=0?'Done!':Math.ceil(rem/2500)+'w';document.getElementById('ef-log').innerHTML=ef.log.length?ef.log.map(function(e){
+  var isWd=e.isWithdrawal||e.amt<0;
+  var dispAmt=isWd?('-'+p(Math.abs(e.amt))):'+'+p(e.amt);
+  var clr=isWd?'var(--rd)':'var(--gr)';
+  return'<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px;"><span style="color:var(--mu)">'+(e.date?e.date+' · ':'')+e.note+'</span><span style="color:'+clr+';font-family:\'DM Mono\',monospace;font-weight:600">'+dispAmt+'</span></div>';
+}).join(''):'<div class="emp">No deposits.</div>';document.getElementById('ef-tr').style.display=ef.log.length?'flex':'none';document.getElementById('ef-tot').textContent=p(ef.bal);}
+
+// HISTORY
+function renderHist(){var HD=DJ('hist',[]);if(!HD.length){document.getElementById('hist-list').innerHTML='<div class="emp">No entries yet.</div>';document.getElementById('hist-tr').style.display='none';return;}var tefSum=0;document.getElementById('hist-list').innerHTML=HD.map(function(e){tefSum+=e.ef;return'<div class="ri"><div><div style="font-size:12px;font-weight:600;">'+e.date+' <span class="bdg b-i">W'+e.wk+'</span></div><div style="font-size:10px;color:var(--mu);font-family:\'DM Mono\',monospace;">'+e.work+'</div><div style="font-size:10px;color:var(--gr);">EF +'+p(e.ef)+(e.loan>0?' · <span style="color:var(--rd);">Loan '+p(e.loan)+'</span>':'')+'</div></div><span class="rv">'+p(e.sal)+'</span></div>';}).join('');document.getElementById('hist-tr').style.display='flex';document.getElementById('hist-ef').textContent=p(tefSum);}
+function clearHist(){if(confirm('Clear all history?')){DS('hist',[]);renderHist();renderMonthly();renderForecast();calcStreak();renderCharts();}}
+function calcStreak(){var HD=DJ('hist',[]);var s=0;for(var i=0;i<HD.length;i++){if(HD[i].ef>0)s++;else break;}document.getElementById('streak').textContent=s;var msgs={10:'10+ weeks straight! Incredible.',5:'5-week streak. Keep going.',1:'Streak started. Don\'t break it.'};var k=s>=10?10:s>=5?5:s>=1?1:0;document.getElementById('streak-msg').innerHTML=k?'<div class="alt a-ok">'+msgs[k]+'</div>':'';}
+
+// CHECKLIST
+function togCk(el){el.classList.toggle('done');el.parentElement.querySelector('.ck-l').classList.toggle('sk',el.classList.contains('done'));var tot=document.querySelectorAll('#ck-list .cb').length,done=document.querySelectorAll('#ck-list .cb.done').length;document.getElementById('ck-p').textContent=done+'/'+tot;calcHS(+document.getElementById('sal').value||0,0,1,0);}
+function resetCk(){document.querySelectorAll('#ck-list .cb').forEach(function(b){b.classList.remove('done');});document.querySelectorAll('#ck-list .ck-l').forEach(function(l){l.classList.remove('sk');});document.getElementById('ck-p').textContent='0/7';}
+function updCyc(){var w=document.getElementById('cycle').value;var el=document.getElementById('cyc-bdg');el.textContent='W'+w;el.className='bdg '+(w=='4'?'b-d':'b-i');}
+
+// COUNTDOWN
+function updCountdown(){var due=new Date('2026-05-07');var now=new Date();now.setHours(0,0,0,0);var diff=Math.ceil((due-now)/864e5);var de=document.getElementById('cd-days'),db=document.getElementById('cd-bdg'),dr=document.getElementById('cd-ring');if(diff<=0){de.textContent='PAID';de.style.color='var(--gr)';db.innerHTML='<span class="bdg b-ok">DEBT FREE</span>';dr.style.stroke='var(--gr)';dr.style.strokeDashoffset='0';if(!localStorage.getItem('bgv5_cel')){showCel();localStorage.setItem('bgv5_cel','1');}}else{de.textContent=diff;dr.style.strokeDashoffset=150-(150*(Math.max(0,90-diff)/90));db.innerHTML=diff<=7?'<span class="bdg b-d">PAY THIS WEEK</span>':diff<=14?'<span class="bdg b-w">'+diff+'d left</span>':'<span class="bdg b-g">'+diff+'d away</span>';}}
+
+// CELEBRATION
+function showCel(){var conf=document.getElementById('conf');var cols=['#3ecf8e','#f5a623','#4f8ef7','#f26b6b','#a78bfa'];for(var i=0;i<60;i++){var pp=document.createElement('div');pp.className='cp';pp.style.cssText='left:'+Math.random()*100+'%;background:'+cols[~~(Math.random()*5)]+';animation-duration:'+(Math.random()*3+2)+'s;animation-delay:'+(Math.random()*2)+'s;width:'+(Math.random()*8+4)+'px;height:'+(Math.random()*8+4)+'px';conf.appendChild(pp);}document.getElementById('cel').classList.add('show');}
+function closeCel(){document.getElementById('cel').classList.remove('show');}
+
+// CONTEXT BAR
+function updCtxBar(){
+  var sal=+document.getElementById('sal').value||0;var lnAmt=+document.getElementById('auto-ln').value||0;var av=Math.max(0,sal-lnAmt);var sp=getBM(av);
+  var ef=DJ('ef',{bal:0}).bal;var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var pills=[
+    '<span class="ctx-pill">Salary: '+p(sal)+'</span>',
+    '<span class="ctx-pill">Wants: '+p(sp.w)+'</span>',
+    '<span class="ctx-pill">Savings: '+p(sp.s)+'</span>',
+    '<span class="ctx-pill">EF: '+p(ef)+'</span>',
+    '<span class="ctx-pill">Loans: '+loans.length+'</span>'
+  ];
+  var bar=document.getElementById('chat-ctx');if(bar)bar.innerHTML=pills.join('');
+  var bar2=document.getElementById('adv-ctx');if(bar2)bar2.innerHTML=pills.join('');
+}
+
+// BUILD CONTEXT FOR AI
+function buildContext(){
+  var sal=+document.getElementById('sal').value||0;
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,sal-lnAmt);
+  var sp=getBM(av);
+  var s=getS();
+  var ef=DJ('ef',{bal:0}).bal;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var HD=DJ('hist',[]);
+  var goals=DJ('goals',[]);
+  var bills=DJ('bills',[]);
+  var SP=DJ('sp',[]);
+  var spentTot=SP.reduce(function(a,e){return a+e.amt;},0);
+  var moInc=sal*4;
+  var totalDebt=loans.reduce(function(a,l){return a+l.bal;},0);
+  var totalPay=loans.reduce(function(a,l){return a+l.pay;},0);
+  var dti=moInc>0?Math.round((totalPay/moInc)*100):0;
+  var efTgt=+document.getElementById('s-ef-tgt').value||36000;
+  var streak=0;for(var i=0;i<HD.length;i++){if(HD[i].ef>0)streak++;else break;}
+  var fixedMonthly=getFixedExps().reduce(function(a,e){return a+e.amt;},0);
+  var loanDue=new Date('2026-05-07');
+  var now2=new Date();now2.setHours(0,0,0,0);
+  var daysToLoan=Math.max(0,Math.ceil((loanDue-now2)/864e5));
+
+  return 'You are a strict but caring Filipino personal financial adviser, accountant, and investment coach based in General Santos City, Philippines. The user is 21 years old — a self-employed freelancer with no rent (lives with family) who is actively building wealth from scratch. You know everything about their finances. Always answer in a direct, practical, peso-specific way. Be strict about bad spending but encouraging about savings and investment. Think long-term wealth — at 21, time is their biggest asset. Reference specific PH investment products: MP2, REITs (AREIT, MREIT, FILREIT), UITFs via GInvest or Seedbox, PSE stocks via COL Financial, time deposits via UnionBank. Always calculate exact peso amounts. Here is their complete financial data:\n\n'+
+    'INCOME:\n- Weekly salary: ₱'+sal+'\n- After loan deductions: ₱'+av+'\n- Estimated monthly income: ₱'+moInc+'\n\n'+
+    'WEEKLY BUDGET (50/30/20 method):\n- Needs (50%): ₱'+Math.round(sp.n)+'\n- Wants (30%): ₱'+Math.round(sp.w)+'\n- Savings (20%): ₱'+Math.round(sp.s)+'\n- Emergency fund deposit (weekly): ₱'+Math.round(sp.s*.68)+'\n- Personal savings deposit (weekly): ₱'+Math.round(sp.s*.32)+'\n\n'+
+    'FIXED MONTHLY EXPENSES:\n'+getFixedExps().map(function(e){return'- '+e.name+': ₱'+e.amt+'/mo (due day '+e.day+')';}).join('\n')+'\n- Total monthly: ₱'+fixedMonthly+'\n- Weekly share: ₱'+(fixedMonthly/4).toFixed(0)+'\n\n'+
+    'BANKING SETUP:\n- Savings + Emergency Fund → Maribank (6% p.a.)\n- Needs budget → GoTyme GoSave pocket (labeled "Needs")\n- Wants budget → GoTyme main wallet\n\n'+
+    'EMERGENCY FUND:\n- Current balance: ₱'+ef+'\n- Target: ₱'+efTgt+'\n- Progress: '+Math.round((ef/efTgt)*100)+'%\n- Weeks to goal at ₱1,000/wk: '+Math.ceil(Math.max(0,efTgt-ef)/1000)+'\n\n'+
+    'LOANS ('+loans.length+' active):\n'+
+    (loans.length?loans.map(function(l){return'- '+l.name+' | Balance: ₱'+l.bal+' | Payment: ₱'+l.pay+'/mo | Due: day '+l.due+' | Int: '+l.int+'%/mo';}).join('\n'):'None')+'\n'+
+    '- Final loan countdown: '+daysToLoan+' days (May 7, 2026 — ₱2,753.34)\n'+
+    '- Total debt: ₱'+totalDebt+'\n- Monthly debt payments: ₱'+totalPay+'\n- DTI ratio: '+dti+'%\n\n'+
+    'BILLS ('+bills.length+'):\n'+(bills.length?bills.map(function(b){return'- '+b.name+': ₱'+b.amt+'/mo (due day '+b.day+')';}).join('\n'):'None')+'\n\n'+
+    'SPENDING THIS WEEK: ₱'+spentTot+'\n\n'+
+    'SAVINGS HISTORY: '+HD.length+' weeks logged\n- Saving streak: '+streak+' consecutive weeks\n\n'+
+    'GOALS:\n'+(goals.length?goals.map(function(g){return'- '+g.name+': ₱'+g.sav+'/₱'+g.tgt+' ('+Math.round((g.sav/g.tgt)*100)+'%)';}).join('\n'):'None')+'\n\n'+
+    'LOCATION: General Santos City, Philippines\n'+
+    'EMPLOYMENT: Self-employed / Freelancer\n'+
+    'LIVING: With family, no rent (major financial advantage)\n\n'+
+    'INVESTMENTS ('+DJ('invests',[]).length+' tracked):\n'+(DJ('invests',[]).length?DJ('invests',[]).map(function(i){return'- '+i.name+' ('+i.type+'): invested ₱'+i.amt+', current ₱'+i.val+(i.mo>0?', ₱'+i.mo+'/mo':'');}).join('\n'):'None yet')+
+  '\nAge: 21 yrs old — 40+ year time horizon — compound interest is your biggest asset\n'+
+  'EF readiness for investment: '+Math.round((DJ('ef',{bal:0}).bal/(+document.getElementById('s-ef-tgt').value||36000))*100)+'% of EF target reached\n'+'Side income this month: '+p(DJ('sideincome',[]).filter(function(e){var n=new Date();return e.mo===n.getMonth()&&e.yr===n.getFullYear();}).reduce(function(a,e){return a+e.amt;},0))+'\n\n'+
+  'IMPORTANT RULES TO FOLLOW IN YOUR ANSWERS:\n'+
+    '1. Always give exact peso amounts. Never be vague.\n'+
+    '2. Be strict about debt. Protect the user from bad loans.\n'+
+    '3. Think long-term wealth, not short-term happiness.\n'+
+    '4. Reference the actual numbers from the data above.\n'+
+    '5. Keep answers concise — 3-5 sentences max unless detailed breakdown is needed.\n'+
+    '6. If the user asks about affording something, calculate it against their actual budget.\n'+
+    '7. If they ask about a new loan, calculate the DTI impact first and warn if dangerous.\n'+
+    '8. Always mention which bank (Maribank, GoTyme GoSave, GoTyme wallet) for each action.';
+}
+
+// AI CHAT FUNCTIONS
+function initChat(){
+  var msgs=document.getElementById('chat-msgs');
+  var advMsgs=document.getElementById('adv-msgs');
+  if(!msgs.children.length&&!advMsgs.children.length){
+    var pr=PROFS.find(function(x){return x.id===CUR;});
+    var nm=pr?pr.name.split(' ')[0]:'';
+    var nm2=nm||'';var welcome='Hello '+nm2+'! I am your personal financial adviser — I work fully offline and know all your budget data. At 21, you have the biggest financial advantage: TIME.\n\nAsk me anything:\n· "How much can I spend today?"\n· "Should I start MP2?"\n· "I spent ₱80 on food"\n· "Can I afford ₱500?"\n· "How much will I have at 30?"\n\nI know your salary, loans, EF, spending, and investments. Let\'s build your wealth.';
+    addMsg(msgs,'ai',welcome);
+    addMsg(advMsgs,'ai',welcome);
+  }
+  renderQuickPrompts();
+  updCtxBar();
+}
+
+function renderQuickPrompts(){
+  var html=QUICK_PROMPTS.map(function(q){return'<div class="q-chip" onclick="sendQuick(\''+q.replace(/'/g,"\\'")+'\')" >'+q+'</div>';}).join('');
+  var qc=document.getElementById('chat-quick');if(qc)qc.innerHTML=html;
+  var qa=document.getElementById('adv-quick');if(qa)qa.innerHTML=QUICK_PROMPTS.map(function(q){return'<div class="q-chip" onclick="sendQuickAdv(\''+q.replace(/'/g,"\\'")+'\')">'+q+'</div>';}).join('');
+}
+
+function addMsg(container,role,text){
+  var now=new Date().toLocaleTimeString('en-PH',{hour:'2-digit',minute:'2-digit'});
+  var div=document.createElement('div');div.className='msg '+role;
+  div.innerHTML='<div class="msg-bubble">'+text.replace(/\n/g,'<br>').replace(/₱[\d,]+/g,function(m){return'<strong>'+m+'</strong>';})+'</div><div class="msg-time">'+now+'</div>';
+  container.appendChild(div);container.scrollTop=container.scrollHeight;
+}
+
+function addTyping(container){
+  var div=document.createElement('div');div.className='msg ai';div.id='typing-ind';
+  div.innerHTML='<div class="msg-typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  container.appendChild(div);container.scrollTop=container.scrollHeight;
+}
+
+function removeTyping(container){var t=container.querySelector('#typing-ind');if(t)t.remove();}
+
+async function callAI(userMsg,history,container){
+  var sendBtn=container===document.getElementById('chat-msgs')?document.getElementById('chat-send'):document.getElementById('adv-send');
+  if(sendBtn)sendBtn.disabled=true;
+  addTyping(container);
+  // Small delay for natural feel
+  await new Promise(function(r){setTimeout(r,600+Math.random()*400);});
+  var reply=smartAdviser(userMsg.toLowerCase(),userMsg);
+  removeTyping(container);
+  addMsg(container,'ai',reply);
+  if(sendBtn)sendBtn.disabled=false;
+  return reply;
+}
+
+function smartAdviser(q,raw){
+  var sal=+document.getElementById('sal').value||7373;
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,sal-lnAmt);
+  var sp=getBM(av);
+  var s=getS();
+  var ef=DJ('ef',{bal:0,log:[]}).bal;
+  var efTgt=+document.getElementById('s-ef-tgt').value||36000;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var HD=DJ('hist',[]);
+  var SP=DJ('sp',[]);
+  var invs=DJ('invests',[]);
+  var bills=DJ('bills',[]);
+  var goals=DJ('goals',[]);
+  var fixedW=s.fixedMonthly/4;
+  var nr=Math.max(0,sp.n-fixedW);
+  var dailyNeeds=Math.round(nr/7);
+  var dailyWants=Math.round(sp.w/7);
+  var totalDebt=loans.reduce(function(a,l){return a+l.bal;},0);
+  var totalPay=loans.reduce(function(a,l){return a+l.pay;},0);
+  var dti=sal>0?Math.round((totalPay/(sal*4))*100):0;
+  var efPct=Math.round((ef/efTgt)*100);
+  var spentToday=SP.filter(function(e){var d=new Date();return e.date===d.toLocaleDateString('en-PH',{month:'short',day:'numeric'});}).reduce(function(a,e){return a+e.amt;},0);
+  var spentWeek=SP.reduce(function(a,e){return a+e.amt;},0);
+  var loanDue=new Date('2026-05-07');
+  var daysToLoan=Math.max(0,Math.ceil((loanDue-new Date())/864e5));
+  var avgSal=HD.length?Math.round(HD.reduce(function(a,e){return a+e.sal;},0)/HD.length):7373;
+  var streak=0;for(var i=0;i<HD.length;i++){if(HD[i].ef>0)streak++;else break;}
+
+  // Parse peso amounts from message
+  var pesoMatch=raw.match(/[₱\d,]+/g);
+  var mentionedAmt=pesoMatch?parseFloat(pesoMatch[pesoMatch.length-1].replace(/[₱,]/g,'')):0;
+
+  // ── SPEND / AFFORD questions ──
+  if(q.match(/how much.*(spend|left|budget|today|remaining|pwede)/)){
+    return 'Today you can spend:\n\nNeeds: '+p(Math.max(0,dailyNeeds-spentToday))+'/day — food, transpo, load\nWants: '+p(Math.max(0,dailyWants))+'/day — lifestyle ceiling\n\nThis week you have already spent '+p(spentWeek)+' total. Your wants budget is '+p(sp.w)+'/week. '+(spentWeek>sp.w?'⚠ You are OVER budget by '+p(spentWeek-sp.w)+'. Stop spending on wants now.':'You have '+p(sp.w-spentWeek)+' left in wants this week.');
+  }
+
+  if(q.match(/can i afford|afford|kaya ko|can i buy|should i buy|worth it/)){
+    if(mentionedAmt>0){
+      var canAfford=mentionedAmt<=sp.w-spentWeek;
+      var canAffordNeeds=mentionedAmt<=nr;
+      if(canAfford) return 'Yes you can afford '+p(mentionedAmt)+'. Your remaining wants budget this week is '+p(sp.w-spentWeek)+'. After this purchase you will have '+p(sp.w-spentWeek-mentionedAmt)+' left for wants. Just make sure it is genuinely worth it — not an impulse buy.';
+      else return 'No. '+p(mentionedAmt)+' exceeds your remaining wants budget of '+p(Math.max(0,sp.w-spentWeek))+' this week. Either wait until next salary day or cut something else from wants first. Protect your savings — do not touch EF or savings for this.';
+    }
+    return 'Tell me the amount and I will calculate if you can afford it this week. Example: "Can I afford ₱500?"';
+  }
+
+  // ── BUDGET SUMMARY ──
+  if(q.match(/summary|budget|breakdown|buod|allocation|saan|where/)){
+    return 'YOUR WEEKLY BUDGET — '+p(sal)+'\n\n50% Needs: '+p(sp.n)+'\n  · Fixed bills: '+p(fixedW)+'/week\n  · Daily needs: '+p(dailyNeeds)+'/day\n  · GoTyme GoSave\n\n30% Wants: '+p(sp.w)+'\n  · Daily allowance: '+p(dailyWants)+'/day\n  · GoTyme wallet\n\n20% Savings: '+p(sp.s)+'\n  · EF: '+p(Math.round(sp.s*.68))+' → Maribank\n  · Personal: '+p(Math.round(sp.s*.32))+' → Maribank\n\nSpent this week: '+p(spentWeek)+'\nRemaining wants: '+p(Math.max(0,sp.w-spentWeek));
+  }
+
+  // ── SALARY / INCOME ──
+  if(q.match(/salary|sahod|sweldo|income|receive|natanggap|magkano/)){
+    if(mentionedAmt>0){
+      var avNew=Math.max(0,mentionedAmt-lnAmt);
+      var spNew=getBM(avNew);
+      return 'For a salary of '+p(mentionedAmt)+':\n\nNeeds (50%): '+p(spNew.n)+'\nWants (30%): '+p(spNew.w)+'\nSavings (20%): '+p(spNew.s)+'\n  · EF deposit: '+p(Math.round(spNew.s*.68))+'\n  · Personal: '+p(Math.round(spNew.s*.32))+'\n\nFirst thing to do: Transfer '+p(Math.round(spNew.s*.68))+' to Maribank EF and '+p(Math.round(spNew.s*.32))+' to Maribank savings before anything else.';
+    }
+    return 'Your average weekly salary based on history is '+p(avgSal)+'. Estimated monthly income: '+p(avgSal*4)+'. Your current week shows '+p(sal)+'. If you received a different amount this week, update it in the Budget tab and I will recalculate everything.';
+  }
+
+  // ── LOAN questions ──
+  if(q.match(/loan|utang|debt|bayad|pay.*loan|loan.*pay/)){
+    if(loans.length===0 && daysToLoan>0) return 'Your final loan of ₱2,753.34 is due May 7, 2026 — '+daysToLoan+' days from now. After that you are permanently debt-free. That ₱2,753/month gets redirected to: ₱1,500 EF, ₱800 savings, ₱453 MP2. Never take another online lending app loan. They damage your CIC credit record and trap you in a debt cycle.';
+    if(loans.length===0) return 'You are DEBT FREE! No active loans. Your DTI is 0%. You are now in the best position to build wealth. Focus on completing your emergency fund and starting MP2.';
+    return 'Active loans: '+loans.length+'\nTotal debt: '+p(totalDebt)+'\nMonthly payments: '+p(totalPay)+'\nDTI ratio: '+dti+'%\n\n'+(dti>30?'⚠ DTI above 30% — do NOT take any new loans. Banks will reject your applications.':'DTI is safe at '+dti+'%. You can still qualify for future loans if needed.')+('\n\nFinal May 7 payment: '+daysToLoan+' days away — ₱2,753.34. Set it aside now.');
+  }
+
+  if(q.match(/new loan|bago.*loan|loan.*bago|mag.*loan|kumuha.*loan|should.*loan|take.*loan/)){
+    if(dti>=30) return '⛔ NO. Your DTI is already '+dti+'%. Taking a new loan will push it above the safe limit. Banks reject applicants above 30% DTI. More importantly — online lending apps charge 20-40% monthly interest. That destroys wealth. Your May 7 payment is only '+daysToLoan+' days away. After that you are free. Do not restart the cycle.';
+    return 'Think very carefully before taking any loan. Even with DTI at '+dti+'% (safe zone), a new loan means more monthly payments eating into your budget. What is the loan for? Tell me the amount and I will calculate the true cost including interest.';
+  }
+
+  // ── EMERGENCY FUND ──
+  if(q.match(/ef|emergency|emergency fund|ipon|savings|matabi/)){
+    var weeksLeft=Math.ceil(Math.max(0,efTgt-ef)/Math.round(sp.s*.68));
+    return 'EMERGENCY FUND STATUS\n\nCurrent balance: '+p(ef)+'\nTarget: '+p(efTgt)+'\nProgress: '+efPct+'%\nWeekly deposit: '+p(Math.round(sp.s*.68))+'\nWeeks to goal: ~'+weeksLeft+' weeks\n\n'+(efPct<50?'Priority: Build EF to ₱'+Math.round(efTgt/2).toLocaleString()+' (50%) before investing. You are at '+efPct+'% now.':efPct<100?'Good progress! You are over halfway. Keep depositing '+p(Math.round(sp.s*.68))+' every week without fail.':'🎉 Emergency fund COMPLETE! You now have 6 months of security. Time to invest aggressively.');
+  }
+
+  // ── INVESTMENT questions ──
+  if(q.match(/invest|mp2|reit|uitf|stock|pse|mutual|fund|col financial|seedbox|ginvest/)){
+    var ready=efPct>=50&&daysToLoan<=0&&loans.filter(function(l){return l.type==='online';}).length===0;
+    var investable=Math.round(sp.s*.32);
+    if(q.match(/mp2|pag.?ibig/)){
+      return 'PAG-IBIG MP2 — Best first investment for you\n\nWhy: Government-backed, ~7% dividend/year, beats all digital banks\nMinimum: ₱500/month\nYour budget can do: '+p(investable)+'/week = '+p(investable*4)+'/month\n'+(investable*4>=500?'✓ You can afford MP2 now!':'Save a bit more — you need ₱500/month minimum')+('\n\nHow to start:\n1. Go to pagibigfund.gov.ph\n2. Register for MP2 online\n3. Set up monthly contribution\n4. Wait 5 years — government pays you dividends\n\nAt ₱500/month for 10 years at 7%: ≈ ₱87,000\nAt ₱500/month for 20 years at 7%: ≈ ₱261,000\n\nStart after May 7 when loan is paid.');
+    }
+    if(q.match(/reit/)){
+      return 'REITS — Real Estate without buying property\n\nBest PH REITs:\n· AREIT (Ayala) — most stable\n· MREIT (Megaworld) — good dividends\n· FILREIT — budget-friendly entry\n\nDividends: 5–8% per year, paid quarterly\nMinimum: ~₱1,000 per transaction\nPlatform: COL Financial or Seedbox app\n\nYour weekly investable amount: '+p(investable)+'\nMonthly: '+p(investable*4)+'\n\n'+(investable*4>=1000?'✓ You can start REITs. Open COL Financial account first — free to open, need valid ID.':'Build up ₱1,000 first before buying REITs. Park it in Maribank at 6% while saving up.')+('\n\nRule: Only invest after EF hits ₱18,000. You are at '+efPct+'% now.');
+    }
+    if(q.match(/uitf|mutual|ginvest|gcash.*invest/)){
+      return 'UITF / GInvest — Easiest way to start investing\n\nGInvest inside GCash is perfect for beginners:\n· Start with just ₱50\n· No lock-in period\n· Professional fund managers\n· 5–12% returns depending on fund type\n\nWhich fund to pick:\n1. Money Market Fund — safest, ~4-5%/yr\n2. Bond Fund — medium, ~5-7%/yr\n3. Equity Fund — higher risk, ~8-12%/yr\n\nFor you as a beginner: Start with Money Market Fund, then shift to Equity as you learn more.\n\nYour investable amount: '+p(investable)+'/week\n\nHow: Open GCash → tap GInvest → pick fund → invest as little as ₱50 to start.';
+    }
+    if(!ready) return 'Investment readiness check:\n\n'+(daysToLoan>0?'⚠ Loan not paid yet ('+daysToLoan+' days)':'✓ No active loans')+'\n'+(efPct>=50?'✓ EF above 50%':'⚠ EF at '+efPct+'% — need 50% before investing')+'\n\nMy advice: Focus on May 7 loan payment first, then build EF to ₱18,000, THEN start investing. At 21 you still have decades ahead. Getting the foundation right now is more important than rushing into investments.';
+    return 'You are '+(!ready?'not quite':'almost')+' ready to invest. Here is your order:\n\n1. MP2 — ₱500/month (start now after May 7)\n2. GInvest UITF — ₱50-500/month (easiest entry)\n3. REITs via COL Financial — ₱1,000+ (quarterly dividends)\n4. PSE Stocks — after you understand the market\n\nYour weekly investable budget: '+p(investable)+'\nMonthly investable: '+p(investable*4)+'\n\nAt 21, starting ₱1,000/month across MP2 + UITF will build you ₱500,000+ by age 35 at average 7% return.';
+  }
+
+  // ── FUTURE PROJECTION ──
+  if(q.match(/30|future|retirement|older|10 years|20 years|magiging|magkano.*taon|taon.*magkano|how much.*year/)){
+    var moInvest=Math.round(sp.s*.32)*4;
+    var val10=moInvest*12*10*Math.pow(1.07,5);
+    var val20=moInvest*12*20*Math.pow(1.07,10);
+    return 'At 21, here is your financial future projection:\n\nMonthly investable now: '+p(moInvest)+'\n\nAt age 30 (9 years): ≈ '+p(moInvest*108*1.72)+'\nAt age 35 (14 years): ≈ '+p(moInvest*168*2.1)+'\nAt age 40 (19 years): ≈ '+p(moInvest*228*2.8)+'\nAt age 50 (29 years): ≈ '+p(moInvest*348*5.4)+'\n\n(Assumes 7% average annual return — MP2/REIT mix)\n\nThis is why starting at 21 is your biggest advantage. Every year you delay costs you more than you think. A person who starts at 30 needs to invest 3x more per month to reach the same amount at 50.';
+  }
+
+  // ── DTI ──
+  if(q.match(/dti|debt.to.income|debt ratio/)){
+    return 'Your current DTI: '+dti+'%\n\nMonthly debt payments: '+p(totalPay)+'\nMonthly income: '+p(sal*4)+'\n\n'+(dti===0?'✓ Perfect — 0% DTI. You are debt-free. Banks love this.':dti<30?'✓ Safe zone. Banks approve loans for DTI below 30%.':dti<40?'⚠ Caution zone. Avoid new loans until DTI drops below 30%.':'⛔ Danger zone. No new loans. Pay down existing debt first.')+('\n\nAfter May 7: DTI drops to 0%. You become highly creditworthy for future house or car loan applications.');
+  }
+
+  // ── CREDIT SCORE ──
+  if(q.match(/credit|cic|credit score|credit record|creditworthy/)){
+    return 'Building your CIC credit profile:\n\n✓ Pay all loans on time — most important\n✓ Never default or miss a due date\n✓ Keep DTI below 30%\n✓ Avoid too many loan applications in short period\n✓ Maintain active bank accounts (Maribank, GoTyme)\n✓ Build consistent income history\n\nAfter May 7 you will have ZERO negative records. From that point every month of clean financial behavior builds your profile.\n\nGoal: In 2-3 years you will qualify for:\n· House loan (PAG-IBIG housing loan)\n· Car loan (bank financing)\n· Business loan\n\nAt 21 starting now — by 24-25 you can have a strong enough credit profile for a house loan. Most people your age are not even thinking about this yet.';
+  }
+
+  // ── SPENDING LOG ──
+  if(q.match(/spent|gastos|nagastos|ginastos|logged|expense|track/)){
+    if(mentionedAmt>0 && raw.match(/₱|\d+/)){
+      var cats=['food','transpo','load','personal','delivery','shopping','entertainment','social','misc'];
+      var cat='misc';
+      if(q.match(/food|kain|lunch|dinner|breakfast|meal|rice|jollibee|mcdo|kfc|mang inasal/)) cat='food';
+      else if(q.match(/jeep|jeepney|bus|taxi|grab|transpo|ride|tricycle|trike|habal/)) cat='transpo';
+      else if(q.match(/load|data|sim|globe|smart|sun/)) cat='load';
+      else if(q.match(/coffee|milk tea|starbucks|cafe|drink/)) cat='food';
+      else if(q.match(/delivery|foodpanda|grab food|order/)) cat='delivery';
+      else if(q.match(/shop|buy|bought|purchase|mall|clothes/)) cat='shopping';
+      return 'Got it! Should I log ₱'+mentionedAmt+' as '+CAT_L[cat]+'?\n\nReply "yes log it" and I will add it to your spending tracker. Or tell me the correct category.\n\nRemaining wants budget: '+p(Math.max(0,sp.w-spentWeek))+' this week.';
+    }
+    return 'Weekly spending so far: '+p(spentWeek)+'\nWants budget: '+p(sp.w)+'\nRemaining: '+p(Math.max(0,sp.w-spentWeek))+'\n\n'+(spentWeek>sp.w?'⚠ OVER BUDGET by '+p(spentWeek-sp.w)+'. Stop non-essential spending now.':'You are within budget. Keep it up.');
+  }
+
+  if(q.match(/yes.*log|log.*it|i-log|ilogi|confirm/)){
+    return 'To log an expense, go to the Spending tab and use the Quick Log shortcuts at the top of the Budget tab. Tap the right category — Food, Jeep, Load, etc. — and it logs instantly with one tap. Or type the amount and category in the Spending tab form.';
+  }
+
+  // ── BILLS ──
+  if(q.match(/bill|bayad|due|gym|coach|electricity|wifi|kuryente/)){
+    var upcomingBills=bills.filter(function(b){var d=b.day-new Date().getDate();return d>=0&&d<=7;});
+    if(upcomingBills.length>0) return 'Bills due in the next 7 days:\n\n'+upcomingBills.map(function(b){return'· '+b.name+': '+p(b.amt)+' (Day '+b.day+')';}).join('\n')+'\n\nTotal: '+p(upcomingBills.reduce(function(a,b){return a+b.amt;},0))+'\n\nMake sure these are already reserved from your needs budget. Fixed bills weekly share: '+p(fixedW);
+    return 'Your fixed monthly expenses: '+p(s.fixedMonthly)+'/month = '+p(fixedW)+'/week\n\nNo bills due in the next 7 days. Check the Bills tab for your full calendar.';
+  }
+
+  // ── ON TRACK ──
+  if(q.match(/on track|okay ba|good ba|how am i|kamusta|financial health|score/)){
+    var HD2=DJ('hist',[]);var recentSavings=HD2.slice(0,4).filter(function(e){return e.ef>0;}).length;
+    return 'YOUR FINANCIAL HEALTH CHECK\n\nSaving streak: '+streak+' weeks\nEF progress: '+efPct+'% ('+p(ef)+' of '+p(efTgt)+')\nDTI: '+dti+'% '+(dti<30?'✓ Safe':'⚠ High')+'\nLoan status: '+(daysToLoan>0?daysToLoan+' days to debt-free':'✓ Debt free')+'\nWeekly savings rate: '+Math.round((sp.s/sal)*100)+'%\nInvestments tracked: '+invs.length+'\n\n'+(streak>=4&&efPct>=30&&dti<30?'✓ You are on track! Keep the momentum.':streak<2?'⚠ Build your saving streak — consistency is everything.':efPct<20?'⚠ Focus on emergency fund — it is your first priority.':'You are making progress. Stay disciplined.');
+  }
+
+  // ── SAVINGS RATE ──
+  if(q.match(/savings rate|magkano.*ipon|ipon.*magkano|how much.*save|save.*much/)){
+    return 'Your current savings rate: '+Math.round((sp.s/sal)*100)+'%\n\nWeekly savings: '+p(sp.s)+'\n  · EF deposit: '+p(Math.round(sp.s*.68))+'\n  · Personal savings: '+p(Math.round(sp.s*.32))+'\n\nMonthly savings: '+p(sp.s*4)+'\nYearly savings: '+p(sp.s*52)+'\n\n'+(sp.s/sal>=.2?'✓ Excellent! 20%+ savings rate puts you ahead of 90% of Filipinos your age.':sp.s/sal>=.1?'Good start. Try to reach 20% savings rate by reducing wants spending.':'Below 10% — try to cut wants and increase savings allocation in Settings.');
+  }
+
+  // ── SIDE INCOME ──
+  if(q.match(/side income|extra.*income|freelance.*earn|dagdag.*kita|extra.*kita|project|additional.*income/)){
+    var SI2=DJ('sideincome',[]);
+    var now3=new Date();
+    var siMo=SI2.filter(function(e){return e.mo===now3.getMonth()&&e.yr===now3.getFullYear();}).reduce(function(a,e){return a+e.amt;},0);
+    var siAll=SI2.reduce(function(a,e){return a+e.amt;},0);
+    if(mentionedAmt>0){
+      var advice=mentionedAmt<=1000?'Send the full '+p(mentionedAmt)+' straight to Maribank EF. Small amounts build faster than you think.':mentionedAmt<=5000?'Split it: '+p(Math.round(mentionedAmt*.7))+' to savings/EF + '+p(Math.round(mentionedAmt*.3))+' to GoTyme wallet as reward.':'Great extra income! Split: '+p(Math.round(mentionedAmt*.5))+' savings + '+p(Math.round(mentionedAmt*.3))+' EF boost + '+p(Math.round(mentionedAmt*.2))+' investment fund.';
+      return 'Extra income of '+p(mentionedAmt)+' — here is what I recommend:\n\n'+advice+'\n\nLog it in the Side Income tab so you can track all your income sources. This month you have earned '+p(siMo)+' in side income so far.';
+    }
+    return 'SIDE INCOME SUMMARY\n\nThis month: '+p(siMo)+'\nAll time: '+p(siAll)+'\nEntries: '+SI2.length+'\n\nAt 21 and self-employed, side income is your fastest wealth accelerator. Every extra project, commission, or sale should go straight to Maribank EF or savings — not spending. Log all side income in the Side Income tab to track your total earning power.';
+  }
+
+  // ── GENERIC / UNKNOWN ──
+  var genericResponses=[
+    'Based on your salary of '+p(sal)+' this week, your daily budget is '+p(dailyNeeds)+' for needs and '+p(dailyWants)+' for wants. You have spent '+p(spentWeek)+' so far this week. Remaining wants: '+p(Math.max(0,sp.w-spentWeek))+'. What specifically do you need help with?',
+    'Your financial snapshot: EF at '+efPct+'%, '+daysToLoan+' days to debt-free, '+streak+'-week saving streak. Ask me anything — budget, spending, investments, loans, or future planning.',
+    'I can help you with: budgeting, spending tracking, loan advice, investment planning, emergency fund, daily limits, or future projections. What do you want to know?'
+  ];
+  return genericResponses[Math.floor(Math.random()*genericResponses.length)];
+}
+
+async function sendChat(){
+  var input=document.getElementById('chat-input');
+  var msg=input.value.trim();if(!msg)return;
+  input.value='';input.style.height='auto';
+  var container=document.getElementById('chat-msgs');
+  addMsg(container,'user',msg);
+  chatHistory.push({role:'user',content:msg});
+  var reply=await callAI(msg,chatHistory.slice(-10),container);
+  if(reply)chatHistory.push({role:'assistant',content:reply});
+}
+
+async function sendMsg(){
+  var input=document.getElementById('adv-input');
+  var msg=input.value.trim();if(!msg)return;
+  input.value='';input.style.height='auto';
+  var container=document.getElementById('adv-msgs');
+  addMsg(container,'user',msg);
+  advHistory.push({role:'user',content:msg});
+  var reply=await callAI(msg,advHistory.slice(-10),container);
+  if(reply)advHistory.push({role:'assistant',content:reply});
+}
+
+function sendQuick(q){document.getElementById('chat-input').value=q;sendChat();}
+function sendQuickAdv(q){document.getElementById('adv-input').value=q;sendMsg();}
+function handleChatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat();}}
+function handleKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,100)+'px';}
+function openChat(){document.getElementById('chat-panel').classList.add('open');updCtxBar();}
+function closeChat(){document.getElementById('chat-panel').classList.remove('open');}
+
+// MODE SWITCHING
+function setMode(m,btn){
+  document.querySelectorAll('.mode-btn').forEach(function(b){b.classList.remove('active');});btn.classList.add('active');
+  document.getElementById('mode-personal').style.display=m==='personal'?'block':'none';
+  document.getElementById('mode-public').style.display=m==='public'?'block':'none';
+  var adv=document.getElementById('mode-adviser');adv.style.display=m==='adviser'?'flex':'none';
+  document.getElementById('chat-fab').style.display=m==='personal'?'flex':'none';
+  if(m==='public') pubCalc();
+  if(m==='adviser'){updCtxBar();if(!document.getElementById('adv-msgs').children.length)initChat();}
+}
+
+function st(tab,btn){
+  document.querySelectorAll('#mode-personal .sec').forEach(function(s){s.classList.remove('active');});
+  document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
+  document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
+  var actions={monthly:function(){renderMonthly();renderForecast();},spending:renderSpending,networth:updNW,goals:renderGoals,history:calcStreak,charts:renderCharts,loans:function(){renderLoans();updDTI();renderPayoffMotivator();},bills:function(){renderBills();renderCalendar();checkBillAutoReset();},mp2:calcMP2,interest:calcInt,invest:function(){renderInvests();renderInvestReadiness();calcInvPlan();},sideincome:function(){renderSideIncome();}};
+  if(actions[tab])actions[tab]();
+}
+
+// PUBLIC CALC
+function pubCalc(){var sal=+document.getElementById('pub-sal').value||0;var freq=document.getElementById('pub-freq').value;var fx=+document.getElementById('pub-fx').value||0;var np=+document.getElementById('pub-np').value||50;var wp=+document.getElementById('pub-wp').value||30;var sp=+document.getElementById('pub-sp').value||20;var wk=freq==='weekly'?sal:freq==='bimonthly'?sal/2:freq==='monthly'?sal/4:sal*6.5;var mo=freq==='weekly'?sal*4:freq==='bimonthly'?sal*2:freq==='monthly'?sal:sal*26;var n=wk*(np/100),w=wk*(wp/100),sv=wk*(sp/100);var nr=Math.max(0,n-fx/4);var days=freq==='daily'?1:7;document.getElementById('pn-pct').textContent=np+'% NEEDS';document.getElementById('pw-pct').textContent=wp+'% WANTS';document.getElementById('ps-pct').textContent=sp+'% SAVINGS';document.getElementById('pn-amt').textContent=p(n);document.getElementById('pw-amt').textContent=p(w);document.getElementById('ps-amt').textContent=p(sv);document.getElementById('pn-rem').textContent=p(nr);document.getElementById('pn-day').textContent=p(nr/days);document.getElementById('pw-day').textContent=p(w/days);document.getElementById('ps-ef').textContent=p(sv*.68);document.getElementById('ps-ps').textContent=p(sv*.32);document.getElementById('pb-n').style.width=np+'%';document.getElementById('pb-w').style.width=wp+'%';document.getElementById('pb-s').style.width=sp+'%';document.getElementById('pm-inc').textContent=p(mo);document.getElementById('pm-sav').textContent=p(mo*(sp/100));var etgt=mo*(np/100)*6;document.getElementById('pm-ef').textContent=p(etgt);var wef=wk*(sp/100)*.68;document.getElementById('pm-wk').textContent=wef>0?Math.ceil(etgt/wef)+' weeks':'--';}
+
+// DAILY LIMIT
+function updDailyLimit(n,w){
+  var nr=n||0,wr=w||0;
+  document.getElementById('daily-needs').textContent='₱'+Math.round(nr/7).toLocaleString();
+  document.getElementById('daily-wants').textContent='₱'+Math.round(wr/7).toLocaleString();
+  var today=new Date().toLocaleDateString('en-PH',{weekday:'long',month:'short',day:'numeric'});
+  document.getElementById('daily-note').textContent='Limits for today — '+today;
+}
+
+// QUICK LOG
+function quickLog(id,note,defaultAmt,cat){
+  var amt=defaultAmt;
+  var custom=prompt('Log '+note+' expense:\nAmount (₱) — press OK for default ₱'+defaultAmt+':');
+  if(custom===null)return;
+  if(custom.trim()!=='')amt=parseFloat(custom)||defaultAmt;
+  var SP=DJ('sp',[]);
+  var today=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+  SP.unshift({amt:amt,cat:cat,note:note,date:today});
+  DS('sp',SP);renderSpending();if(lockOn)updLock();
+  showToast(note+' ₱'+Math.round(amt)+' logged','ok');
+}
+
+// INVESTMENT TRACKER
+function showInvestModal(){document.getElementById('invest-modal').style.display='flex';document.getElementById('inv-nm').focus();}
+function hideInvestModal(){document.getElementById('invest-modal').style.display='none';['inv-nm','inv-amt','inv-val','inv-mo','inv-platform'].forEach(function(id){document.getElementById(id).value='';});}
+function addInvest(){
+  var nm=document.getElementById('inv-nm').value.trim();
+  var amt=+document.getElementById('inv-amt').value||0;
+  if(!nm||!amt){showToast('Enter a name and amount','warn');return;}
+  var invs=DJ('invests',[]);
+  invs.push({id:Date.now(),name:nm,type:document.getElementById('inv-type').value,amt:amt,val:+document.getElementById('inv-val').value||amt,mo:+document.getElementById('inv-mo').value||0,platform:document.getElementById('inv-platform').value||'—'});
+  DS('invests',invs);hideInvestModal();renderInvests();calcInvPlan();showToast(nm+' added to investments','ok','📈');
+}
+function delInvest(id){if(!confirm('Remove this investment?'))return;DS('invests',DJ('invests',[]).filter(function(i){return i.id!==id;}));renderInvests();}
+function renderInvests(){
+  var invs=DJ('invests',[]);
+  var typeClr={mp2:'var(--pu)',td:'var(--te)',uitf:'var(--bl)',reit:'var(--or)',stocks:'var(--rd)',crypto:'var(--am)',other:'var(--mu)'};
+  var typeNm={mp2:'MP2',td:'Time Deposit',uitf:'UITF/MF',reit:'REIT',stocks:'Stocks',crypto:'Crypto',other:'Other'};
+  if(!invs.length){document.getElementById('invest-list').innerHTML='<div class="emp">No investments yet.</div>';document.getElementById('invest-total-row').style.display='none';return;}
+  var totalAmt=0,totalVal=0;
+  var html=invs.map(function(inv){
+    totalAmt+=inv.amt;totalVal+=inv.val;
+    var gain=inv.val-inv.amt;var gainPct=inv.amt>0?Math.round((gain/inv.amt)*100):0;
+    var gainClr=gain>=0?'var(--gr)':'var(--rd)';var gainSign=gain>=0?'+':'';
+    return'<div style="background:var(--sur2);border-radius:var(--rs);padding:11px;margin-bottom:7px;">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">'
+      +'<div><div style="font-size:13px;font-weight:600;">'+inv.name+'</div>'
+      +'<div style="display:flex;gap:5px;margin-top:2px;"><span class="bdg" style="background:'+typeClr[inv.type]+'22;color:'+typeClr[inv.type]+';">'+typeNm[inv.type]+'</span>'
+      +(inv.platform!=='—'?'<span class="bdg b-g">'+inv.platform+'</span>':'')+'</div></div>'
+      +'<div style="text-align:right;"><div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;">'+p(inv.val)+'</div>'
+      +'<div style="font-size:11px;color:'+gainClr+';font-weight:600;">'+gainSign+p(gain)+' ('+gainSign+gainPct+'%)</div></div></div>'
+      +(inv.mo>0?'<div style="font-size:11px;color:var(--mu);">Monthly contribution: <span style="font-weight:600;color:var(--tx);">'+p(inv.mo)+'</span></div>':'')
+      +'<div style="display:flex;justify-content:space-between;margin-top:6px;">'
+      +'<span style="font-size:11px;color:var(--mu);">Invested: '+p(inv.amt)+'</span>'
+      +'<button onclick="delInvest('+inv.id+')" style="background:none;border:none;color:var(--rd);cursor:pointer;font-size:12px;">Remove</button></div></div>';
+  }).join('');
+  document.getElementById('invest-list').innerHTML=html;
+  document.getElementById('invest-total-row').style.display='flex';
+  document.getElementById('invest-total').textContent=p(totalVal);
+}
+
+function calcInvPlan(){
+  var sal=+document.getElementById('sal').value||7373;
+  var s=getS();
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,sal-lnAmt);
+  var sp=getBM(av);
+  var savingsWeekly=Math.round(sp.s);
+  var efWeekly=Math.round(sp.s*.68);
+  var personalWeekly=Math.round(sp.s*.32);
+  var investable=Math.max(0,personalWeekly);
+
+  document.getElementById('inv-sal-display').textContent=p(sal);
+
+  var choices=[];
+  if(document.getElementById('inv-chk-mp2').checked) choices.push({name:'Pag-IBIG MP2',type:'mp2',color:'var(--pu)',minMo:500,info:'Safest. Govt-backed ~7%/yr. 5yr lock.',platform:'Pag-IBIG website or app'});
+  if(document.getElementById('inv-chk-uitf').checked) choices.push({name:'UITF / GInvest',type:'uitf',color:'var(--bl)',minMo:50,info:'Pooled fund. 5-12%/yr. No lock-in.',platform:'GCash GInvest (easiest)'});
+  if(document.getElementById('inv-chk-reit').checked) choices.push({name:'REITs (AREIT/MREIT)',type:'reit',color:'var(--or)',minMo:1000,info:'Quarterly dividends 5-8%/yr.',platform:'COL Financial / Seedbox'});
+  if(document.getElementById('inv-chk-stocks').checked) choices.push({name:'PSE Stocks',type:'stocks',color:'var(--rd)',minMo:1000,info:'Blue chip: SM, BDO, JFC. Higher risk.',platform:'COL Financial'});
+  if(document.getElementById('inv-chk-td').checked) choices.push({name:'Time Deposit',type:'td',color:'var(--te)',minMo:5000,info:'Guaranteed 3-6%/yr. PDIC insured.',platform:'UnionBank online'});
+
+  var html='';
+
+  // Show available investment budget
+  html+='<div style="background:var(--sur2);border-radius:var(--rs);padding:11px;margin-bottom:12px;">';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+  html+='<div style="text-align:center;"><div style="font-size:10px;color:var(--mu);font-weight:600;text-transform:uppercase;margin-bottom:3px;">Weekly savings</div><div style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">'+p(savingsWeekly)+'</div></div>';
+  html+='<div style="text-align:center;"><div style="font-size:10px;color:var(--mu);font-weight:600;text-transform:uppercase;margin-bottom:3px;">Available to invest</div><div style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--pu);">'+p(investable)+'</div><div style="font-size:10px;color:var(--hi);">after EF deposit</div></div>';
+  html+='</div></div>';
+
+  if(!choices.length){
+    html+='<div style="text-align:center;padding:14px;color:var(--hi);font-size:13px;">Select at least one investment above.</div>';
+    document.getElementById('inv-plan-result').innerHTML=html;return;
+  }
+
+  var perChoice=Math.floor(investable/choices.length);
+  var moPerChoice=perChoice*4;
+
+  html+='<div style="font-size:11px;color:var(--mu);margin-bottom:8px;font-weight:600;">SUGGESTED WEEKLY ALLOCATION:</div>';
+
+  choices.forEach(function(c){
+    var canAfford=moPerChoice>=c.minMo;
+    var weeklyNeeded=Math.ceil(c.minMo/4);
+    html+='<div class="inv-plan-card '+c.type+'">';
+    html+='<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px;">';
+    html+='<div><div style="font-size:13px;font-weight:700;color:'+c.color+';">'+c.name+'</div>';
+    html+='<div style="font-size:11px;color:var(--mu);margin-top:1px;">'+c.info+'</div></div>';
+    html+='<div style="text-align:right;">';
+    html+='<div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:'+c.color+';">'+p(canAfford?perChoice:weeklyNeeded)+'/wk</div>';
+    html+='<div style="font-size:10px;color:var(--mu);">'+(canAfford?p(moPerChoice):p(c.minMo))+'/month</div>';
+    html+='</div></div>';
+    html+='<div style="display:flex;justify-content:space-between;font-size:11px;">';
+    html+='<span style="color:var(--mu);">Platform: <span style="color:var(--tx);font-weight:500;">'+c.platform+'</span></span>';
+    if(!canAfford) html+='<span style="color:var(--am);">Need '+p(weeklyNeeded)+'/wk min</span>';
+    else html+='<span style="color:var(--gr);">✓ Affordable</span>';
+    html+='</div></div>';
+  });
+
+  // 5-year projection
+  var totalMoInvest=choices.reduce(function(a,c){return a+(moPerChoice>=c.minMo?moPerChoice:0);},0);
+  if(totalMoInvest>0){
+    var proj5=totalMoInvest*12*5*1.065; // rough 6.5% avg return
+    html+='<div style="background:var(--sur2);border-radius:var(--rs);padding:11px;margin-top:4px;">';
+    html+='<div style="font-size:11px;color:var(--mu);font-weight:600;text-transform:uppercase;margin-bottom:6px;">5-year projection</div>';
+    html+='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">';
+    html+='<div style="text-align:center;"><div style="font-size:10px;color:var(--mu);">Total contributed</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);">'+p(totalMoInvest*60)+'</div></div>';
+    html+='<div style="text-align:center;"><div style="font-size:10px;color:var(--mu);">Est. value (6.5%/yr)</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">'+p(proj5)+'</div></div>';
+    html+='</div></div>';
+  }
+
+  html+='<div class="alt a-i" style="margin-top:8px;margin-bottom:0;">You are 21. Starting now gives you the biggest advantage: TIME. Even ₱500/month invested consistently for 10 years beats ₱5,000/month started at 30.</div>';
+  document.getElementById('inv-plan-result').innerHTML=html;
+}
+
+function renderInvestReadiness(){
+  var ef=DJ('ef',{bal:0}).bal;var efTgt=+document.getElementById('s-ef-tgt').value||36000;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var HD=DJ('hist',[]);var avgSal=HD.length?HD.reduce(function(a,e){return a+e.sal;},0)/HD.length:7373;
+  var loanDue=new Date('2026-05-07');var loanPaid=new Date()<loanDue?false:true;
+  var efPct=Math.round((ef/efTgt)*100);
+  var checks=[
+    {label:'Loan paid (May 7, 2026)',done:loanPaid,note:loanPaid?'Debt free!':'Pay first before investing'},
+    {label:'Emergency fund at 50% (₱'+Math.round(efTgt/2).toLocaleString()+')',done:ef>=efTgt/2,note:'Current: '+p(ef)+' ('+efPct+'%)'},
+    {label:'No online lending apps',done:loans.filter(function(l){return l.type==='online';}).length===0,note:'Online loans damage your CIC and DTI'},
+    {label:'Consistent weekly savings',done:HD.length>=4,note:HD.length+' weeks logged — need at least 4'},
+  ];
+  var score=checks.filter(function(c){return c.done;}).length;
+  var scoreClr=score===4?'var(--gr)':score>=2?'var(--am)':'var(--rd)';
+  var verdict=score===4?'You are ready to invest!':score>=2?'Almost ready — complete the remaining items':score>=1?'Not ready yet — focus on EF and debt first':'Focus on budget basics first';
+  var html='<div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">'
+    +'<div style="font-size:36px;font-weight:700;font-family:DM Mono,monospace;color:'+scoreClr+';">'+score+'/4</div>'
+    +'<div><div style="font-size:13px;font-weight:600;color:'+scoreClr+';">'+verdict+'</div></div></div>';
+  checks.forEach(function(c){
+    html+='<div style="display:flex;align-items:flex-start;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd);">'
+      +'<div style="width:18px;height:18px;border-radius:4px;background:'+(c.done?'var(--gr)':'var(--sur2)')+';border:2px solid '+(c.done?'var(--gr)':'var(--bd2)')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:10px;color:#fff;font-weight:700;">'+(c.done?'✓':'')+'</div>'
+      +'<div><div style="font-size:12px;font-weight:500;color:'+(c.done?'var(--tx)':'var(--mu)')+';">'+c.label+'</div>'
+      +'<div style="font-size:11px;color:var(--hi);">'+c.note+'</div></div></div>';
+  });
+  document.getElementById('invest-ready-check').innerHTML=html;
+}
+
+// DEBT PAYOFF MOTIVATOR
+function renderPayoffMotivator(){
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  if(!loans.length){document.getElementById('payoff-content').innerHTML='<div class="emp" style="padding:10px 0;">No active loans. You are debt free!</div>';return;}
+  var html='';
+  loans.forEach(function(l){
+    var interest=l.bal*(l.int/100);
+    var canPay=l.pay>interest;
+    var months=canPay?Math.ceil(l.bal/(l.pay-interest)):null;
+    var totalInterest=canPay?(l.pay*months-l.bal):null;
+    var payoffDate=null;
+    if(months){var d=new Date();d.setMonth(d.getMonth()+months);payoffDate=d.toLocaleDateString('en-PH',{month:'long',year:'numeric'});}
+    html+='<div style="background:var(--sur2);border-radius:var(--rs);padding:12px;margin-bottom:8px;">'
+      +'<div style="font-size:13px;font-weight:700;margin-bottom:8px;">'+l.name+'</div>'
+      +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px;">'
+      +'<div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--mu);">Remaining balance</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--rd);">'+p(l.bal)+'</div></div>'
+      +(months?'<div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--mu);">Payoff in</div><div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">'+months+' months</div></div>':'<div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;"><div style="font-size:10px;color:var(--mu);">Payoff</div><div style="font-size:13px;font-weight:700;color:var(--mu);">Increase payment</div></div>')
+      +'</div>'
+      +(payoffDate?'<div style="font-size:12px;color:var(--mu);margin-bottom:4px;">Debt-free date: <span style="color:var(--gr);font-weight:600;">'+payoffDate+'</span></div>':'')
+      +(totalInterest?'<div style="font-size:12px;color:var(--mu);margin-bottom:4px;">Total interest you will pay: <span style="color:var(--rd);font-weight:600;">'+p(totalInterest)+'</span></div>':'')
+      +'<div style="font-size:12px;color:var(--mu);">Monthly payment: <span style="font-weight:600;color:var(--tx);">'+p(l.pay)+'</span> · Interest/mo: <span style="color:var(--rd);">'+p(interest)+'</span></div>'
+      +'</div>';
+  });
+  // Special May 7 card
+  var loanDue=new Date('2026-05-07');var now2=new Date();now2.setHours(0,0,0,0);
+  var daysLeft=Math.max(0,Math.ceil((loanDue-now2)/864e5));
+  if(daysLeft>0){
+    html='<div style="background:var(--gr-bg);border:1px solid var(--gr);border-radius:var(--rs);padding:12px;margin-bottom:8px;text-align:center;">'
+      +'<div style="font-size:11px;color:var(--gr);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px;">Final payment countdown</div>'
+      +'<div style="font-size:32px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">'+daysLeft+' days</div>'
+      +'<div style="font-size:12px;color:var(--mu);margin-top:3px;">May 7, 2026 · ₱2,753.34 · LAST EVER</div>'
+      +'<div style="font-size:12px;color:var(--gr);margin-top:6px;font-weight:500;">After this — you keep 100% of your income</div>'
+      +'</div>'+html;
+  }
+  document.getElementById('payoff-content').innerHTML=html;
+}
+
+// BILL AUTO-RESET
+function checkBillAutoReset(){
+  var lastReset=DJ('bills_reset_mo',-1);
+  var curMo2=new Date().getMonth();
+  if(lastReset!==curMo2){
+    DS('bills_reset_mo',curMo2);
+    DS('bills_paid',[]);
+    var el=document.getElementById('bills-reset-note');
+    if(el)el.textContent='Auto-reset on 1st';
+    showToast('Bills checklist reset for '+MO[curMo2],'info');
+  } else {
+    var el2=document.getElementById('bills-reset-note');
+    if(el2)el2.textContent='Resets on 1st of each month';
+  }
+}
+function resetBillsChecked(){
+  DS('bills_paid',[]);
+  document.querySelectorAll('#bills-list .bill-cb').forEach(function(b){b.classList.remove('done');});
+  showToast('Bills checklist reset','info');
+}
+
+// SIDE INCOME
+var SI_SOURCE_LABELS={freelance:'Freelance',online:'Online selling',commission:'Commission',bonus:'Bonus/tip',rental:'Rental',investment:'Investment return',gift:'Gift',other:'Other'};
+var SI_SOURCE_COLORS={freelance:'var(--gr)',online:'var(--bl)',commission:'var(--am)',bonus:'var(--pu)',rental:'var(--te)',investment:'var(--or)',gift:'var(--pk)',other:'var(--mu)'};
+var SI_ACTION_LABELS={ef:'→ Maribank EF',savings:'→ Maribank savings',invest:'→ Investment fund',needs:'→ Bills/needs',wants:'→ GoTyme wallet',split:'→ Split 50/30/20'};
+
+function addSideIncome(){
+  var amt=+document.getElementById('si-amt').value||0;
+  var source=document.getElementById('si-source').value;
+  var desc=document.getElementById('si-desc').value.trim()||SI_SOURCE_LABELS[source];
+  var date=document.getElementById('si-date').value||new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+  var action=document.getElementById('si-action').value;
+  if(amt<=0){showToast('Enter an amount','warn');return;}
+  var SI=DJ('sideincome',[]);
+  var now=new Date();
+  SI.unshift({id:Date.now(),amt:amt,source:source,desc:desc,date:date,action:action,mo:now.getMonth(),yr:now.getFullYear()});
+  DS('sideincome',SI);
+  document.getElementById('si-amt').value='';
+  document.getElementById('si-desc').value='';
+  document.getElementById('si-date').value='';
+  renderSideIncome();
+
+  // Auto-log to EF if action is ef
+  if(action==='ef'){
+    var ef=DJ('ef',{bal:0,log:[]});
+    ef.bal+=amt;
+    ef.log.unshift({amt:amt,note:'Side income: '+desc,date:date});
+    DS('ef',ef);updEF();
+    showToast(p(amt)+' from '+desc+' added to Maribank EF!','ok','💰');
+  } else if(action==='savings'){
+    showToast(p(amt)+' from '+desc+' logged → Maribank savings','ok','🏦');
+  } else if(action==='split'){
+    var sal2=+document.getElementById('sal').value||7373;
+    var sp2=getBM(amt);
+    var ef2=DJ('ef',{bal:0,log:[]});
+    ef2.bal+=Math.round(sp2.s*.68);
+    ef2.log.unshift({amt:Math.round(sp2.s*.68),note:'Side income split: '+desc,date:date});
+    DS('ef',ef2);updEF();
+    showToast(p(amt)+' split — EF: '+p(Math.round(sp2.s*.68))+' · Wants: '+p(Math.round(sp2.w)),'ok','✓');
+  } else {
+    showToast(p(amt)+' from '+desc+' logged successfully','ok','💵');
+  }
+}
+
+function renderSideIncome(){
+  var SI=DJ('sideincome',[]);
+  var now=new Date();
+  var moTotal=SI.filter(function(e){return e.mo===now.getMonth()&&e.yr===now.getFullYear();}).reduce(function(a,e){return a+e.amt;},0);
+  var allTotal=SI.reduce(function(a,e){return a+e.amt;},0);
+
+  document.getElementById('si-month-total').textContent=p(moTotal);
+  document.getElementById('si-all-total').textContent=p(allTotal);
+
+  if(!SI.length){
+    document.getElementById('si-by-source').innerHTML='<div class="emp">No side income yet.</div>';
+    document.getElementById('si-log').innerHTML='<div class="emp">No entries yet.</div>';
+    return;
+  }
+
+  // By source breakdown
+  var bySource={};
+  SI.forEach(function(e){bySource[e.source]=(bySource[e.source]||0)+e.amt;});
+  var sourceHtml='';
+  Object.keys(bySource).sort(function(a,b){return bySource[b]-bySource[a];}).forEach(function(src){
+    var amt=bySource[src];var pct=Math.round((amt/allTotal)*100);
+    var clr=SI_SOURCE_COLORS[src]||'var(--mu)';
+    sourceHtml+='<div style="display:flex;align-items:center;padding:8px 0;border-bottom:1px solid var(--bd);">';
+    sourceHtml+='<div style="width:9px;height:9px;border-radius:50%;background:'+clr+';flex-shrink:0;margin-right:10px;"></div>';
+    sourceHtml+='<div style="flex:1;"><div style="font-size:13px;font-weight:500;">'+SI_SOURCE_LABELS[src]+'</div>';
+    sourceHtml+='<div style="background:var(--sur2);height:5px;border-radius:3px;overflow:hidden;margin-top:4px;"><div style="height:5px;border-radius:3px;background:'+clr+';width:'+pct+'%;transition:width .5s;"></div></div></div>';
+    sourceHtml+='<div style="text-align:right;margin-left:10px;"><div style="font-size:14px;font-weight:700;font-family:DM Mono,monospace;color:'+clr+'">'+p(amt)+'</div><div style="font-size:10px;color:var(--hi);">'+pct+'%</div></div></div>';
+  });
+  document.getElementById('si-by-source').innerHTML=sourceHtml;
+
+  // Log
+  var logHtml=SI.slice(0,20).map(function(e){
+    var clr=SI_SOURCE_COLORS[e.source]||'var(--mu)';
+    return'<div class="smooth-list-item" style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid var(--bd);">'
+      +'<div><div style="font-size:13px;font-weight:500;">'+e.desc+'</div>'
+      +'<div style="display:flex;gap:5px;margin-top:3px;">'
+      +'<span class="bdg" style="background:'+clr+'22;color:'+clr+';">'+SI_SOURCE_LABELS[e.source]+'</span>'
+      +'<span class="bdg b-g">'+SI_ACTION_LABELS[e.action]+'</span>'
+      +'</div>'
+      +'<div style="font-size:10px;color:var(--hi);margin-top:2px;">'+e.date+'</div></div>'
+      +'<div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">+'+p(e.amt)+'</div></div>';
+  }).join('');
+  document.getElementById('si-log').innerHTML=logHtml||'<div class="emp">No entries.</div>';
+}
+
+function clearSideIncome(){
+  if(!confirm('Clear all side income records?'))return;
+  DS('sideincome',[]);
+  renderSideIncome();
+  showToast('Side income log cleared','info');
+}
+
+// EF MODE
+function setEFMode(m){
+  document.getElementById('ef-mode-add').classList.toggle('active',m==='add');
+  document.getElementById('ef-mode-wd').classList.toggle('active',m==='withdraw');
+  document.getElementById('ef-add-section').style.display=m==='add'?'block':'none';
+  document.getElementById('ef-wd-section').style.display=m==='withdraw'?'block':'none';
+}
+function withdrawEF(){
+  var amt=+document.getElementById('ef-wd-amt').value||0;
+  var note=document.getElementById('ef-wd-note').value.trim();
+  if(amt<=0){showToast('Enter an amount to withdraw','warn');return;}
+  if(!note){showToast('Please enter a reason for withdrawal','warn');return;}
+  var ef=DJ('ef',{bal:0,log:[]});
+  if(amt>ef.bal){showToast('Amount exceeds your EF balance of '+p(ef.bal),'warn');return;}
+  if(!confirm('Withdraw '+p(amt)+' from Emergency Fund?\n\nReason: '+note+'\n\nOnly do this for true emergencies.')){return;}
+  ef.bal=Math.max(0,ef.bal-amt);
+  ef.log.unshift({amt:-amt,note:'WITHDRAWAL: '+note,date:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'}),isWithdrawal:true});
+  DS('ef',ef);
+  document.getElementById('ef-wd-amt').value='';
+  document.getElementById('ef-wd-note').value='';
+  updEF();
+  showToast(p(amt)+' withdrawn from EF','warn');
+  setEFMode('add');
+}
+
+// TOAST + ANIMATIONS
+function showToast(msg,type,icon){
+  var t=document.getElementById('toast');
+  var ic=icon||(type==='ok'?'✓':type==='warn'?'⚠':type==='info'?'ℹ':'✓');
+  t.innerHTML='<span style="margin-right:6px;">'+ic+'</span>'+msg;
+  t.className='toast '+(type||'ok');
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer=setTimeout(function(){t.classList.remove('show');},3200);
+}
+
+function flashCard(id){
+  var el=document.getElementById(id);
+  if(!el)return;
+  el.classList.remove('flash-ok');
+  void el.offsetWidth;
+  el.classList.add('flash-ok');
+}
+
+function animateNewItem(el){
+  if(!el)return;
+  el.style.opacity='0';el.style.transform='translateY(10px)';
+  setTimeout(function(){el.style.transition='opacity .3s ease,transform .3s ease';el.style.opacity='1';el.style.transform='translateY(0)';},10);
+}
+
+// WHAT IF SIMULATOR - quick salary sim
+function runWhatIf(){
+  var amt=+document.getElementById('whatif-sal').value||0;
+  if(!amt){showToast('Enter a salary amount','warn');return;}
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,amt-lnAmt);
+  var sp=getBM(av);
+  var s=getS();
+  var nr=Math.max(0,sp.n-s.fixedMonthly/4);
+  document.getElementById('wi-needs').textContent=p(sp.n);
+  document.getElementById('wi-wants').textContent=p(sp.w);
+  document.getElementById('wi-savings').textContent=p(sp.s);
+  document.getElementById('wi-daily').textContent=p(nr/7);
+  document.getElementById('wi-result').style.display='block';
+}
+
+// EXPORT SUMMARY
+function exportSummary(){
+  var sal=+document.getElementById('sal').value||0;var lnAmt=+document.getElementById('auto-ln').value||0;var av=Math.max(0,sal-lnAmt);var sp=getBM(av);
+  var ef=DJ('ef',{bal:0}).bal;var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var date=new Date().toLocaleDateString('en-PH',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  var s=getS();var nr=Math.max(0,sp.n-s.fixedMonthly/4);
+  var txt='📊 WEEKLY BUDGET SUMMARY\n'+date+'\n\n'+'💰 Salary: '+p(sal)+(lnAmt>0?'\n⚠ Loan deducted: '+p(lnAmt)+'\n📥 Available: '+p(av):'')+
+  '\n\n📋 BUDGET BREAKDOWN\n'+'🔵 Needs ('+Math.round(sp.np)+'%): '+p(sp.n)+'\n   → Daily needs: '+p(nr/7)+'\n   → GoTyme GoSave "Needs"\n'+
+  '🟡 Wants ('+Math.round(sp.wp)+'%): '+p(sp.w)+'\n   → GoTyme wallet\n'+
+  '🟢 Savings ('+Math.round(sp.sp)+'%): '+p(sp.s)+'\n   → EF: '+p(sp.s*.68)+' → Maribank\n   → Personal: '+p(sp.s*.32)+' → Maribank\n\n'+
+  '🏦 EMERGENCY FUND\n   Balance: '+p(ef)+'\n   Target: '+p(+document.getElementById('s-ef-tgt').value||36000)+'\n   Progress: '+Math.round((ef/(+document.getElementById('s-ef-tgt').value||36000))*100)+'%\n\n'+
+  (loans.length?'💳 ACTIVE LOANS ('+loans.length+')\n'+loans.map(function(l){return'   • '+l.name+': '+p(l.bal)+' remaining';}).join('\n')+'\n\n':'')+
+  '📱 Generated by Budget App v5.1 — GenSan';
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showToast('Summary copied! Paste to Telegram','ok');});}else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Summary copied! Paste to Telegram','ok');}
+}
+
+// INIT
+applyTheme();
+renderProfs();
+</script>
+</body>
+</html>
