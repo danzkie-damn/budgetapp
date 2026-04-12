@@ -361,7 +361,7 @@ select option{background:var(--sur);}
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
             <div class="ct2" style="margin-bottom:0;">Payday checklist</div>
-            <div style="display:flex;gap:6px;align-items:center;"><span id="ck-p" style="font-size:11px;color:var(--gr);font-weight:600;">0/7</span><button onclick="resetCk()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Reset</button></div>
+            <div style="display:flex;gap:6px;align-items:center;"><span id="ck-p" style="font-size:11px;color:var(--gr);font-weight:600;">0/7</span><button onclick="resetCk()" style="font-size:11px;color:var(--rd);background:none;border:none;cursor:pointer;font-weight:600;">New week</button></div>
           </div>
           <div id="ck-list">
             <div class="ck"><div class="cb" onclick="togCk(this,'maribank')" data-action="maribank"></div><div><div class="ck-l">Transfer savings + EF → <strong>Maribank</strong></div><div class="ck-s" id="ck-sv">₱1,475</div><div class="bk bk-m">Maribank savings</div></div></div>
@@ -902,7 +902,7 @@ select option{background:var(--sur);}
           <div id="import-status" style="font-size:12px;margin-top:8px;"></div>
         </div>
 
-        <div class="ver">v5.6 · GenSan Budget App · Final Edition · 2026</div>
+        <div class="ver">v5.7 · GenSan Budget App · Final Edition · 2026</div>
       </div>
 
       <!-- ADD FIXED EXPENSE MODAL -->
@@ -1034,7 +1034,8 @@ function selProf(id){
 }
 function showProfs(){document.getElementById('prof-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('chat-fab').style.display='none';renderProfs();}
 
-function initApp(){renderFixedExps();calc();renderLoans();renderBills();renderCalendar();renderHist();updEF();renderSpending();renderGoals();updNW();calcMP2();calcInt();renderMonthly();renderForecast();calcStreak();renderCharts();updDTI();renderPayoffMotivator();checkBillAutoReset();renderInvests();renderInvestReadiness();calcInvPlan();renderSideIncome();initChat();}
+function loadCkState(){var states=DJ('ck_state',[]);if(!states||!states.length)return;var boxes=document.querySelectorAll('#ck-list .cb');boxes.forEach(function(b,i){if(states[i]===true){b.classList.add('done');var lb=b.parentElement.querySelector('.ck-l');if(lb)lb.classList.add('sk');}});var done=document.querySelectorAll('#ck-list .cb.done').length;var tot=document.querySelectorAll('#ck-list .cb').length;document.getElementById('ck-p').textContent=done+'/'+tot;}
+function initApp(){renderFixedExps();calc();loadCkState();renderLoans();renderBills();renderCalendar();renderHist();updEF();renderSpending();renderGoals();updNW();calcMP2();calcInt();renderMonthly();renderForecast();calcStreak();renderCharts();updDTI();renderPayoffMotivator();checkBillAutoReset();renderInvests();renderInvestReadiness();calcInvPlan();renderSideIncome();initChat();}
 
 // SETTINGS
 function getFixedExps(){return DJ('fixedExps',[{id:1,name:'Gym',amt:1000,day:1,cat:'fitness'},{id:2,name:'Coach',amt:1500,day:1,cat:'coaching'},{id:3,name:'Home electricity',amt:600,day:1,cat:'utilities'},{id:4,name:'BH electricity',amt:600,day:1,cat:'utilities'},{id:5,name:'WiFi',amt:600,day:1,cat:'internet'}]);}
@@ -1222,8 +1223,27 @@ function clearHist(){if(confirm('Clear all history?')){DS('hist',[]);renderHist(
 function calcStreak(){var HD=DJ('hist',[]);var s=0;for(var i=0;i<HD.length;i++){if(HD[i].ef>0)s++;else break;}document.getElementById('streak').textContent=s;var msgs={10:'10+ weeks straight! Incredible.',5:'5-week streak. Keep going.',1:'Streak started. Don\'t break it.'};var k=s>=10?10:s>=5?5:s>=1?1:0;document.getElementById('streak-msg').innerHTML=k?'<div class="alt a-ok">'+msgs[k]+'</div>':'';}
 
 // CHECKLIST
-function togCk(el){el.classList.toggle('done');el.parentElement.querySelector('.ck-l').classList.toggle('sk',el.classList.contains('done'));var tot=document.querySelectorAll('#ck-list .cb').length,done=document.querySelectorAll('#ck-list .cb.done').length;document.getElementById('ck-p').textContent=done+'/'+tot;calcHS(+document.getElementById('sal').value||0,0,1,0);}
-function resetCk(){document.querySelectorAll('#ck-list .cb').forEach(function(b){b.classList.remove('done');});document.querySelectorAll('#ck-list .ck-l').forEach(function(l){l.classList.remove('sk');});document.getElementById('ck-p').textContent='0/7';}
+function togCk(el,action){
+  el.classList.toggle('done');
+  el.parentElement.querySelector('.ck-l').classList.toggle('sk',el.classList.contains('done'));
+  var tot=document.querySelectorAll('#ck-list .cb').length;
+  var done=document.querySelectorAll('#ck-list .cb.done').length;
+  document.getElementById('ck-p').textContent=done+'/'+tot;
+  var states=[];
+  document.querySelectorAll('#ck-list .cb').forEach(function(b){states.push(b.classList.contains('done'));});
+  DS('ck_state',states);
+  if(el.classList.contains('done')&&action){
+    var sal=+document.getElementById('sal').value||0;
+    var lnAmt=+document.getElementById('auto-ln').value||0;
+    var av=Math.max(0,sal-lnAmt);var sp=getBM(av);var s=getS();
+    var today=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+    if(action==='maribank'){var ef=DJ('ef',{bal:0,log:[]});var efPart=Math.round(sp.s*.68);ef.bal+=efPart;ef.log.unshift({amt:efPart,note:'Auto: EF from checklist',date:today});DS('ef',ef);updEF();showToast(p(Math.round(sp.s))+' logged to Maribank','ok','🏦');}
+    else if(action==='gosave'){showToast(p(Math.max(0,Math.round(sp.n-s.fixedMonthly/4)))+' logged to GoTyme GoSave','ok','✓');}
+    else if(action==='gowallet'){showToast(p(Math.round(sp.w))+' logged to GoTyme wallet','ok','✓');}
+  }
+  calcHS(+document.getElementById('sal').value||0,0,1,0);
+}
+function resetCk(){document.querySelectorAll('#ck-list .cb').forEach(function(b){b.classList.remove('done');});document.querySelectorAll('#ck-list .ck-l').forEach(function(l){l.classList.remove('sk');});document.getElementById('ck-p').textContent='0/7';DS('ck_state',[]);showToast('Checklist reset — new week!','info','✓');}
 function updCyc(){var w=document.getElementById('cycle').value;var el=document.getElementById('cyc-bdg');el.textContent='W'+w;el.className='bdg '+(w=='4'?'b-d':'b-i');}
 
 // COUNTDOWN
