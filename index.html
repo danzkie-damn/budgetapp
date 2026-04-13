@@ -267,12 +267,14 @@ select option{background:var(--sur);}
         <div class="hdr-r">
           <span class="bdg b-i" id="cyc-bdg">W1</span>
           <button class="sm-btn" onclick="toggleTheme()" id="theme-btn">☀</button>
+          <button class="sm-btn" onclick="requestNotifications()" id="notif-btn" title="Enable reminders">🔔</button>
           <button class="sm-btn" onclick="showProfs()">⇄</button>
         </div>
       </div>
       <nav class="nav">
         <button class="nb active" onclick="st('budget',this)">Budget</button>
         <button class="nb" onclick="st('loans',this)">Loans</button>
+        <button class="nb" onclick="st('atome',this)" style="color:var(--pk);">Atome</button>
         <button class="nb" onclick="st('bills',this)">Bills</button>
         <button class="nb" onclick="st('charts',this)">Charts</button>
         <button class="nb" onclick="st('score',this)">Health</button>
@@ -286,6 +288,9 @@ select option{background:var(--sur);}
         <button class="nb" onclick="st('ef',this)">EF</button>
         <button class="nb" onclick="st('invest',this)">Invest</button>
         <button class="nb" onclick="st('sideincome',this)">Side Income</button>
+        <button class="nb" onclick="st('calendar',this)">Calendar</button>
+        <button class="nb" onclick="st('challenge',this)">Challenge</button>
+        <button class="nb" onclick="st('report',this)">Report</button>
         <button class="nb" onclick="st('settings',this)">Settings</button>
       </nav>
     </div>
@@ -370,6 +375,7 @@ select option{background:var(--sur);}
             <div class="ck" id="ck-loan-r" style="display:none;"><div class="cb" onclick="togCk(this)" style="border-color:var(--rd);"></div><div><div class="ck-l" style="color:var(--rd);">Set aside ALL loan payments</div><div class="ck-s" id="ck-ln">Separate Maribank pocket</div><div class="bk bk-m">Maribank pocket</div></div></div>
             <div class="ck"><div class="cb" onclick="togCk(this)"></div><div><div class="ck-l">Pay fixed bills</div><div class="ck-s">Gym · Coach · Electricity · WiFi</div></div></div>
             <div class="ck"><div class="cb" onclick="togCk(this)"></div><div><div class="ck-l">Log salary in History tab</div><div class="ck-s">Every week without fail</div></div></div>
+            <div class="ck"><div class="cb" onclick="togCk(this,'atome_set')" ></div><div><div class="ck-l">Set aside <strong>Atome payment</strong> in Maribank pocket</div><div class="ck-s" id="ck-atome-amt">Check Atome tab for amount</div><div class="bk bk-m" style="margin-top:3px;">Maribank "Atome" pocket</div></div></div>
             <div class="ck"><div class="cb" onclick="togCk(this)" style="border-color:var(--rd);"></div><div><div class="ck-l" style="color:var(--rd);">Do NOT open any new online loan</div><div class="ck-s">Protects your CIC credit record</div></div></div>
           </div>
         </div>
@@ -391,11 +397,26 @@ select option{background:var(--sur);}
         </div>
 
         <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">This week's mode</div>
+            <span id="mode-badge" class="bdg b-i">Balanced</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+            <button onclick="setWeekMode('balanced')" id="wm-balanced" style="padding:8px 4px;border-radius:var(--rs);border:1px solid var(--bl);background:var(--bl-bg);cursor:pointer;font-size:11px;font-weight:600;color:var(--bl);font-family:Sora,sans-serif;transition:all .2s;">⚖<div style="margin-top:2px;">Balanced</div><div style="font-size:9px;opacity:.7;">50/30/20</div></button>
+            <button onclick="setWeekMode('debt')" id="wm-debt" style="padding:8px 4px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;font-size:11px;font-weight:600;color:var(--mu);font-family:Sora,sans-serif;transition:all .2s;">💳<div style="margin-top:2px;">Debt</div><div style="font-size:9px;opacity:.7;">60/10/30</div></button>
+            <button onclick="setWeekMode('save')" id="wm-save" style="padding:8px 4px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;font-size:11px;font-weight:600;color:var(--mu);font-family:Sora,sans-serif;transition:all .2s;">🏦<div style="margin-top:2px;">Save</div><div style="font-size:9px;opacity:.7;">50/20/30</div></button>
+            <button onclick="setWeekMode('invest')" id="wm-invest" style="padding:8px 4px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;font-size:11px;font-weight:600;color:var(--mu);font-family:Sora,sans-serif;transition:all .2s;">📈<div style="margin-top:2px;">Invest</div><div style="font-size:9px;opacity:.7;">50/25/25</div></button>
+          </div>
+          <div id="mode-desc" style="font-size:11px;color:var(--mu);padding:8px 10px;background:var(--sur2);border-radius:var(--rs);">Standard 50/30/20. Balanced across needs, wants, and savings.</div>
+        </div>
+
+        <div class="card">
           <div class="ct2">This week's salary</div>
           <div class="g2"><div><label>Salary (₱)</label><input type="number" id="sal" value="7373" inputmode="numeric" oninput="calc()"></div><div><label>Pay date</label><input type="text" id="paydate" placeholder="Apr 10"></div></div>
           <div class="g2"><div><label>Work from</label><input type="text" id="wfrom" placeholder="Mar 30"></div><div><label>Work to</label><input type="text" id="wto" placeholder="Apr 5"></div></div>
           <div class="g2" style="margin-bottom:10px;"><div><label>Cycle week</label><select id="cycle" onchange="calc();updCyc()"><option value="1">Week 1</option><option value="2">Week 2</option><option value="3">Week 3</option><option value="4">Week 4 — loan</option></select></div><div><label>Auto loan deduction</label><select id="auto-ln" onchange="calc()"><option value="0">None this week</option></select></div></div>
           <button class="btn btn-bl" onclick="calc();saveEntry()">Calculate + save to history</button>
+          <button class="btn" onclick="oneTabPayday()" style="background:var(--gr);color:#0a2a1a;margin-top:6px;">⚡ One-tap payday split</button>
         </div>
 
         <div id="results" style="display:none;">
@@ -434,10 +455,38 @@ select option{background:var(--sur);}
               <div class="si" id="ln-step" style="display:none;"><div class="sn" style="background:var(--rd-bg);color:var(--rd)">!</div><div class="st"><strong>Set aside loan payment</strong> — Maribank pocket</div><span class="sv2" id="act-ln" style="color:var(--rd)">₱0</span></div>
               <div class="si"><div class="sn">1</div><div class="st"><strong>Savings + EF → Maribank</strong></div><span class="sv2" id="act1" style="color:var(--gr)">₱0</span></div>
               <div class="si"><div class="sn">2</div><div class="st"><strong>Needs → GoTyme GoSave</strong></div><span class="sv2" id="act2" style="color:var(--te)">₱0</span></div>
-              <div class="si"><div class="sn">3</div><div class="st"><strong>Wants → GoTyme wallet</strong></div><span class="sv2" id="act3" style="color:var(--am)">₱0</span></div>
+              <div class="si"><div class="sn">3</div><div class="st"><strong>Wants → GoTyme wallet</strong> <span id="act3-atome-note" style="font-size:10px;color:var(--pk);"></span></div><span class="sv2" id="act3" style="color:var(--am)">₱0</span></div>
+              <div class="si" id="act-atome-row" style="display:none;"><div class="sn" style="background:var(--pk-bg);color:var(--pk);">!</div><div class="st"><strong>Atome reserve → Maribank pocket</strong><br><span style="font-size:10px;color:var(--mu);">Needs: <span id="act-atome-needs">₱0</span> · Wants: <span id="act-atome-wants">₱0</span></span></div><span class="sv2" id="act-atome-total" style="color:var(--pk)">₱0</span></div>
               <div class="si"><div class="sn">4</div><div class="st"><strong>Fixed bills reserved</strong></div><span class="sv2" id="act4" style="color:var(--bl)">₱0</span></div>
             </div>
           </div>
+          <!-- ATOME NEEDS vs WANTS PAYMENT BREAKDOWN -->
+          <div id="atome-nw-breakdown" style="display:none;" class="card">
+            <div class="ct2" style="color:var(--pk);">Atome payment breakdown</div>
+            <div style="font-size:12px;color:var(--mu);margin-bottom:10px;">Your Atome balance has purchases from both Needs and Wants. Here is how much to set aside from each budget to pay it.</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+              <div style="background:var(--bl-bg);border-radius:var(--rs);padding:11px;">
+                <div style="font-size:10px;color:var(--bl);font-weight:600;text-transform:uppercase;margin-bottom:3px;">From Needs budget</div>
+                <div style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);" id="atome-needs-weekly">₱0</div>
+                <div style="font-size:10px;color:var(--hi);margin-top:2px;">weekly (gas, groceries)</div>
+                <div style="font-size:10px;color:var(--bl);margin-top:4px;">→ Set aside from GoSave</div>
+              </div>
+              <div style="background:var(--am-bg);border-radius:var(--rs);padding:11px;">
+                <div style="font-size:10px;color:var(--am);font-weight:600;text-transform:uppercase;margin-bottom:3px;">From Wants budget</div>
+                <div style="font-size:18px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="atome-wants-weekly">₱0</div>
+                <div style="font-size:10px;color:var(--hi);margin-top:2px;">weekly (clothes, gadgets)</div>
+                <div style="font-size:10px;color:var(--am);margin-top:4px;">→ Set aside from GoTyme</div>
+              </div>
+            </div>
+            <div style="background:var(--pk-bg);border-radius:var(--rs);padding:10px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                <span style="font-size:12px;color:var(--pk);font-weight:600;">Total weekly Atome reserve</span>
+                <span style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-total-weekly">₱0</span>
+              </div>
+              <div style="font-size:11px;color:var(--mu);">Transfer all of this to your <strong style="color:#ffb74d;">Maribank "Atome" pocket</strong> every payday. Pay full balance on 13th.</div>
+            </div>
+          </div>
+
           <div id="alert-box"></div>
 
           <!-- WHAT IF SIMULATOR -->
@@ -463,10 +512,203 @@ select option{background:var(--sur);}
         </div>
       </div>
 
+      <!-- ATOME TAB -->
+      <div id="tab-atome" class="sec">
+
+        <!-- BALANCE + DUE DATE -->
+        <div class="card" style="border:1px solid var(--pk-bg);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <div>
+              <div class="ct2" style="margin-bottom:2px;color:var(--pk);">Atome balance</div>
+              <div style="font-size:28px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-balance">₱6,581.42</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-size:10px;color:var(--mu);font-weight:600;text-transform:uppercase;margin-bottom:3px;">Days until due</div>
+              <div style="font-size:28px;font-weight:700;font-family:DM Mono,monospace;" id="atome-days">--</div>
+              <div style="font-size:10px;color:var(--hi);" id="atome-due-label">13th of month</div>
+            </div>
+          </div>
+          <div id="atome-countdown-bar"></div>
+          <div class="dvd"></div>
+          <div style="display:flex;gap:7px;">
+            <input type="number" id="atome-bal-input" placeholder="Update balance (₱)" inputmode="numeric" style="flex:1;font-size:13px;">
+            <button class="btn btn-bl btn-sm" onclick="updateAtomeBal()" style="width:auto;padding:9px 14px;margin-top:0;">Update</button>
+          </div>
+        </div>
+
+        <!-- WEEKLY BREAKDOWN: NEEDS vs WANTS -->
+        <div class="card">
+          <div class="ct2">Weekly payment breakdown</div>
+          <div style="font-size:12px;color:var(--mu);margin-bottom:10px;">How much to set aside from each budget every week before the 13th.</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <div style="background:var(--bl-bg);border-radius:var(--rs);padding:11px;">
+              <div style="font-size:10px;color:var(--bl);font-weight:600;text-transform:uppercase;margin-bottom:3px;">From Needs</div>
+              <div style="font-size:20px;font-weight:700;font-family:DM Mono,monospace;color:var(--bl);" id="atome-needs-wk">₱0</div>
+              <div style="font-size:10px;color:var(--hi);margin-top:2px;">gas · groceries</div>
+              <div style="font-size:10px;color:var(--bl);margin-top:4px;font-weight:600;">→ GoTyme GoSave</div>
+            </div>
+            <div style="background:var(--am-bg);border-radius:var(--rs);padding:11px;">
+              <div style="font-size:10px;color:var(--am);font-weight:600;text-transform:uppercase;margin-bottom:3px;">From Wants</div>
+              <div style="font-size:20px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="atome-wants-wk">₱0</div>
+              <div style="font-size:10px;color:var(--hi);margin-top:2px;">clothes · gadgets</div>
+              <div style="font-size:10px;color:var(--am);margin-top:4px;font-weight:600;">→ GoTyme wallet</div>
+            </div>
+          </div>
+          <div style="background:var(--pk-bg);border-radius:var(--rs);padding:10px;display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:11px;color:var(--pk);font-weight:600;">Total weekly reserve</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:1px;">Transfer to Maribank "Atome" pocket</div>
+            </div>
+            <div style="font-size:20px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-total-wk">₱0</div>
+          </div>
+        </div>
+
+        <!-- SPENDING LIMIT -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+            <div class="ct2" style="margin-bottom:0;">Spending limit</div>
+            <span id="atome-lock-badge" class="bdg b-g">No limit set</span>
+          </div>
+          <div style="display:flex;gap:7px;margin-bottom:6px;">
+            <input type="number" id="atome-limit-input" placeholder="e.g. 5000" inputmode="numeric" style="flex:1;font-size:13px;">
+            <button class="btn btn-bl btn-sm" onclick="setAtomeLimit()" style="width:auto;padding:9px 14px;margin-top:0;">Set</button>
+          </div>
+          <div id="atome-limit-bar" style="display:none;">
+            <div class="pw"><div class="pf" id="atome-limit-fill" style="width:0%;background:var(--pk)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-top:3px;">
+              <span id="atome-limit-used">₱0 used</span>
+              <span id="atome-limit-left">₱0 remaining</span>
+            </div>
+          </div>
+          <div style="font-size:11px;color:var(--mu);margin-top:6px;">App warns you before you exceed this limit.</div>
+        </div>
+
+        <!-- ADD PURCHASE -->
+        <div class="card">
+          <div class="ct2">Add purchase</div>
+          <div class="g2">
+            <div><label>Item</label><input type="text" id="atome-item" placeholder="e.g. Groceries, Shoes"></div>
+            <div><label>Total amount (₱)</label><input type="number" id="atome-total" placeholder="0" inputmode="numeric" oninput="calcAtomeSplit()"></div>
+          </div>
+          <div class="g2">
+            <div><label>Category</label>
+              <select id="atome-cat">
+                <option value="groceries">Groceries</option>
+                <option value="gas">Gas / fuel</option>
+                <option value="food">Food / meals</option>
+                <option value="clothing">Clothing</option>
+                <option value="gadget">Gadget</option>
+                <option value="health">Health / beauty</option>
+                <option value="home">Home</option>
+                <option value="sports">Sports</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div><label>Deduct from</label>
+              <select id="atome-bucket" onchange="updAtomeBucketNote()">
+                <option value="needs">Needs (gas, grocery)</option>
+                <option value="wants">Wants (clothes, gadgets)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- SPLIT PREVIEW -->
+          <div id="atome-split-preview" style="display:none;background:var(--sur2);border-radius:var(--rs);padding:11px;margin-bottom:10px;">
+            <div style="font-size:11px;color:var(--mu);font-weight:600;margin-bottom:7px;">3-installment split</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px;">
+              <div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;">
+                <div style="font-size:10px;color:var(--mu);">Today</div>
+                <div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-p1">₱0</div>
+              </div>
+              <div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;">
+                <div style="font-size:10px;color:var(--mu);">Month 2</div>
+                <div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-p2">₱0</div>
+              </div>
+              <div style="background:var(--sur);border-radius:6px;padding:8px;text-align:center;">
+                <div style="font-size:10px;color:var(--mu);">Month 3</div>
+                <div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);" id="atome-p3">₱0</div>
+              </div>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:12px;color:var(--mu);">New total due: <strong id="atome-new-total" style="color:var(--pk);">₱0</strong></span>
+              <span id="atome-budget-warning" style="font-size:11px;"></span>
+            </div>
+          </div>
+
+          <div id="atome-bucket-note" style="font-size:11px;color:var(--mu);padding:6px 9px;background:var(--sur2);border-radius:var(--rs);margin-bottom:10px;">This purchase will be deducted from your Needs budget.</div>
+          <button class="btn" onclick="addAtomePurchase()" style="background:var(--pk);color:#fff;">Add to Atome</button>
+        </div>
+
+        <!-- ADVISER RULES -->
+        <div class="card">
+          <div class="ct2">Atome rules</div>
+          <div class="sl">
+            <div class="si"><div class="sn" style="background:var(--pk-bg);color:var(--pk);">1</div><div class="st"><strong>Never exceed 20% of monthly income.</strong> Your safe limit is ₱<span id="atome-safe-limit">5,898</span>/month.</div></div>
+            <div class="si"><div class="sn" style="background:var(--pk-bg);color:var(--pk);">2</div><div class="st"><strong>Bill arrives on 3rd, due on 13th.</strong> Set aside weekly so you are never scrambling.</div></div>
+            <div class="si"><div class="sn" style="background:var(--pk-bg);color:var(--pk);">3</div><div class="st"><strong>Separate Needs from Wants.</strong> Gas and groceries come from Needs. Clothes and gadgets from Wants. Always tag correctly.</div></div>
+            <div class="si"><div class="sn" style="background:var(--rd-bg);color:var(--rd);">!</div><div class="st" style="color:var(--rd);"><strong>Late payment on 13th = CIC damage.</strong> This affects your future house and car loan applications.</div></div>
+          </div>
+        </div>
+
+        <!-- MARK AS PAID -->
+        <div class="card" style="border:1px solid var(--gr-bg);">
+          <div class="ct2" style="color:var(--gr);">Mark Atome payment</div>
+          <div style="font-size:12px;color:var(--mu);margin-bottom:10px;">Record a payment toward your Atome balance. Choose full or partial payment.</div>
+          <div class="g2">
+            <div><label>Payment amount (₱)</label><input type="number" id="atome-pay-amt" placeholder="6581.42" inputmode="numeric"></div>
+            <div><label>Payment type</label>
+              <select id="atome-pay-type">
+                <option value="full">Full balance</option>
+                <option value="partial">Partial payment</option>
+                <option value="installment">Monthly installment</option>
+              </select>
+            </div>
+          </div>
+          <div style="margin-bottom:10px;"><label>Note (optional)</label><input type="text" id="atome-pay-note" placeholder="e.g. Paid via GCash"></div>
+          <button class="btn btn-gr" onclick="confirmAtomePayment()">Mark as paid</button>
+        </div>
+
+        <!-- PAYMENT HISTORY -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Payment history</div>
+            <span id="atome-paid-total-badge" class="bdg b-ok">₱0 paid</span>
+          </div>
+          <div id="atome-payment-log"><div class="emp">No payments recorded yet.</div></div>
+        </div>
+
+        <!-- PURCHASE LOG -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Purchase log</div>
+            <button onclick="clearAtome()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Clear all</button>
+          </div>
+          <div id="atome-log"><div class="emp">No purchases logged yet.</div></div>
+          <div class="tr" id="atome-log-total" style="display:none;">
+            <span style="color:var(--mu);font-size:12px;">Total purchased</span>
+            <span id="atome-total-all" style="color:var(--pk);font-family:DM Mono,monospace;">₱0</span>
+          </div>
+        </div>
+
+      </div>
       <!-- LOANS -->
       <div id="tab-loans" class="sec">
         <div class="card"><div class="ct2">Debt-to-income ratio</div><div class="dti-w"><div class="dti-n" id="dti-n" style="color:var(--gr)">0%</div><div style="font-size:11px;color:var(--mu);">of monthly income goes to debt</div></div><div class="pw"><div class="pf" id="dti-bar" style="width:0%;background:var(--gr)"></div></div><div id="dti-alt" style="margin-top:8px;"></div></div>
+        <div class="card">
+          <div class="ct2">Debt payoff priority (avalanche method)</div>
+          <div id="debt-priority-list"><div class="emp" style="padding:8px 0;">Add loans to see priority order.</div></div>
+        </div>
+
         <!-- DEBT PAYOFF MOTIVATOR -->
+        <!-- LOAN PAYMENT HISTORY -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;">Payment history</div>
+            <span id="loan-paid-badge" class="bdg b-ok">₱0 total paid</span>
+          </div>
+          <div id="loan-payment-log"><div class="emp">No payments recorded yet.</div></div>
+        </div>
+
         <div class="card" id="payoff-card">
           <div class="ct2">Debt payoff motivator</div>
           <div id="payoff-content"><div class="emp" style="padding:10px 0;">Add a loan above to see your payoff plan.</div></div>
@@ -533,6 +775,24 @@ select option{background:var(--sur);}
       <!-- SPENDING -->
       <div id="tab-spending" class="sec">
         <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><div class="ct2" style="margin-bottom:0;">Budget lock</div><button class="sm-btn" onclick="toggleLock()" id="lock-btn">🔓 Off</button></div><div style="text-align:center;padding:10px 0 5px;"><div style="font-size:28px;" id="lock-icon">🔓</div><div style="font-size:26px;font-weight:700;font-family:DM Mono,monospace;" id="lock-amt">₱0</div><div style="font-size:11px;color:var(--mu);" id="lock-st">Calculate budget first</div></div><div id="lock-prog" style="display:none;"><div class="pw"><div class="pf" id="lock-bar" style="width:0%;background:var(--gr)"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-top:2px;"><span id="lk-spent">₱0 spent</span><span id="lk-rem">₱0 left</span></div></div></div>
+        <!-- RECEIPT SCANNER -->
+        <div class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;">
+            <div class="ct2" style="margin-bottom:0;">Receipt scanner</div>
+            <span class="bdg b-i">Camera</span>
+          </div>
+          <div style="font-size:12px;color:var(--mu);margin-bottom:9px;">Take a photo of your receipt. The app reads the total amount automatically.</div>
+          <input type="file" id="receipt-file" accept="image/*" capture="environment" style="display:none;" onchange="scanReceipt(this)">
+          <button class="btn btn-gh" onclick="document.getElementById('receipt-file').click()" style="margin-top:0;">📷 Scan receipt / upload photo</button>
+          <div id="receipt-result" style="display:none;margin-top:8px;padding:9px;background:var(--sur2);border-radius:var(--rs);">
+            <div style="font-size:12px;color:var(--mu);margin-bottom:5px;">Detected amount:</div>
+            <div style="display:flex;gap:7px;align-items:center;">
+              <input type="number" id="receipt-amount" style="flex:1;font-size:14px;" placeholder="0">
+              <button class="btn btn-bl btn-sm" onclick="useReceiptAmount()" style="width:auto;padding:9px 14px;margin-top:0;">Use this</button>
+            </div>
+          </div>
+        </div>
+
         <div class="card"><div class="ct2">Log expense</div><div class="g2"><div><label>Amount (₱)</label><input type="number" id="sp-amt" placeholder="0" inputmode="numeric"></div><div><label>Category</label><select id="sp-cat"><option value="food">Food</option><option value="transpo">Transpo</option><option value="load">Load</option><option value="personal">Personal</option><option value="delivery">Delivery</option><option value="shopping">Shopping</option><option value="entertainment">Entertainment</option><option value="social">Social</option><option value="misc">Misc</option></select></div></div><div style="margin-bottom:9px;"><label>Note</label><input type="text" id="sp-note" placeholder="e.g. Jollibee"></div><button class="btn btn-bl" onclick="addSpend()">Log expense</button></div>
         <div class="card"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;"><div class="ct2" style="margin-bottom:0;">This week</div><button onclick="clearSpends()" style="font-size:11px;color:var(--mu);background:none;border:none;cursor:pointer;">Clear</button></div><div id="sp-cats"><div class="emp">No expenses yet.</div></div><div class="tr"><span style="color:var(--mu);font-size:12px;">Total</span><span id="sp-tot" style="font-family:DM Mono,monospace;">₱0</span></div></div>
         <div class="card"><div class="ct2">Log</div><div id="sp-log"><div class="emp">No entries.</div></div></div>
@@ -881,6 +1141,106 @@ select option{background:var(--sur);}
 
       </div>
 
+      <!-- BUDGET CALENDAR TAB -->
+      <div id="tab-calendar" class="sec">
+        <div class="card">
+          <div class="mo-nav-r">
+            <button class="sm-btn" onclick="chgMainCal(-1)">&#8249;</button>
+            <span style="font-size:14px;font-weight:600;" id="main-cal-label">April 2026</span>
+            <button class="sm-btn" onclick="chgMainCal(1)">&#8250;</button>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;">
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--gr);display:inline-block;"></span>Salary</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--pk);display:inline-block;"></span>Atome</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--rd);display:inline-block;"></span>Loan due</span>
+            <span style="display:flex;align-items:center;gap:4px;"><span style="width:10px;height:10px;border-radius:50%;background:var(--am);display:inline-block;"></span>Bill</span>
+          </div>
+          <div class="cal-grid" id="main-cal-grid"></div>
+        </div>
+        <div class="card">
+          <div class="ct2">This month events</div>
+          <div id="cal-events-list"><div class="emp">No events this month.</div></div>
+        </div>
+      </div>
+
+      <!-- SAVINGS CHALLENGE TAB -->
+      <div id="tab-challenge" class="sec">
+        <div class="alt a-p" style="margin-bottom:10px;">Savings challenges build discipline. Pick one and commit. Every day you complete it — tick it. Do not break the chain.</div>
+        <div class="card">
+          <div class="ct2">Choose a challenge</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <button onclick="startChallenge('no-wants',21,'No Wants Spend',500)" style="padding:12px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;text-align:left;font-family:Sora,sans-serif;">
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">21-Day No Wants</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:3px;">Zero wants spending for 21 days</div>
+              <div style="font-size:12px;color:var(--gr);font-weight:600;margin-top:5px;">Save ~₱500/day</div>
+            </button>
+            <button onclick="startChallenge('daily-save',30,'30-Day Daily Savings',100)" style="padding:12px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;text-align:left;font-family:Sora,sans-serif;">
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">30-Day Save Daily</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:3px;">Save at least ₱100 every day</div>
+              <div style="font-size:12px;color:var(--gr);font-weight:600;margin-top:5px;">₱3,000 in 30 days</div>
+            </button>
+            <button onclick="startChallenge('debt-attack',14,'14-Day Debt Attack',1000)" style="padding:12px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;text-align:left;font-family:Sora,sans-serif;">
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">14-Day Debt Attack</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:3px;">Extra ₱1,000 to debt daily</div>
+              <div style="font-size:12px;color:var(--rd);font-weight:600;margin-top:5px;">₱14,000 debt reduction</div>
+            </button>
+            <button onclick="startChallenge('ef-boost',21,'21-Day EF Boost',500)" style="padding:12px;border-radius:var(--rs);border:1px solid var(--bd2);background:var(--sur2);cursor:pointer;text-align:left;font-family:Sora,sans-serif;">
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">21-Day EF Boost</div>
+              <div style="font-size:11px;color:var(--mu);margin-top:3px;">Add ₱500 to EF every day</div>
+              <div style="font-size:12px;color:var(--bl);font-weight:600;margin-top:5px;">₱10,500 EF boost</div>
+            </button>
+          </div>
+        </div>
+        <div id="challenge-active" style="display:none;" class="card">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
+            <div class="ct2" style="margin-bottom:0;" id="challenge-name">Challenge</div>
+            <button onclick="endChallenge()" style="font-size:11px;color:var(--rd);background:none;border:none;cursor:pointer;">End</button>
+          </div>
+          <div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">
+            <div style="text-align:center;">
+              <div style="font-size:36px;font-weight:700;font-family:DM Mono,monospace;color:var(--am);" id="challenge-streak">0</div>
+              <div style="font-size:11px;color:var(--mu);">day streak</div>
+            </div>
+            <div style="flex:1;">
+              <div style="font-size:12px;color:var(--mu);margin-bottom:5px;" id="challenge-progress-lbl">0 / 0 days</div>
+              <div class="pw"><div class="pf" id="challenge-bar" style="width:0%;background:var(--am)"></div></div>
+              <div style="font-size:11px;color:var(--mu);margin-top:4px;" id="challenge-daily-target"></div>
+            </div>
+          </div>
+          <button class="btn btn-gr" onclick="tickChallenge()">✓ Mark today as done</button>
+        </div>
+        <div id="challenge-days-grid" class="card" style="display:none;">
+          <div class="ct2">Daily progress</div>
+          <div id="challenge-grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:5px;"></div>
+        </div>
+      </div>
+
+      <!-- REPORT TAB -->
+      <div id="tab-report" class="sec">
+        <div class="card">
+          <div class="ct2">Monthly financial report</div>
+          <div style="display:flex;gap:7px;margin-bottom:12px;">
+            <select id="report-month" style="flex:1;" onchange="generateReport()">
+              <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+              <option value="3" selected>April</option><option value="4">May</option><option value="5">June</option>
+              <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+              <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+            </select>
+            <select id="report-year" style="width:90px;" onchange="generateReport()">
+              <option value="2025">2025</option><option value="2026" selected>2026</option>
+            </select>
+          </div>
+          <div id="report-content"><div class="emp">Select month to generate report.</div></div>
+          <button class="btn btn-bl" onclick="copyReport()" style="margin-top:10px;">📋 Copy report to clipboard</button>
+        </div>
+
+        <!-- INCOME STABILITY SCORE -->
+        <div class="card">
+          <div class="ct2">Income stability score</div>
+          <div id="income-stability-content"><div class="emp" style="padding:10px 0;">Log at least 3 weeks of salary to see your stability score.</div></div>
+        </div>
+      </div>
+
       <div id="tab-settings" class="sec">
         <div class="card">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:11px;">
@@ -902,7 +1262,7 @@ select option{background:var(--sur);}
           <div id="import-status" style="font-size:12px;margin-top:8px;"></div>
         </div>
 
-        <div class="ver">v5.7 · GenSan Budget App · Final Edition · 2026</div>
+        <div class="ver">v6.3 · GenSan Budget App · Final Edition · 2026</div>
       </div>
 
       <!-- ADD FIXED EXPENSE MODAL -->
@@ -1035,7 +1395,7 @@ function selProf(id){
 function showProfs(){document.getElementById('prof-screen').style.display='flex';document.getElementById('main-app').style.display='none';document.getElementById('chat-fab').style.display='none';renderProfs();}
 
 function loadCkState(){var states=DJ('ck_state',[]);if(!states||!states.length)return;var boxes=document.querySelectorAll('#ck-list .cb');boxes.forEach(function(b,i){if(states[i]===true){b.classList.add('done');var lb=b.parentElement.querySelector('.ck-l');if(lb)lb.classList.add('sk');}});var done=document.querySelectorAll('#ck-list .cb.done').length;var tot=document.querySelectorAll('#ck-list .cb').length;document.getElementById('ck-p').textContent=done+'/'+tot;}
-function initApp(){renderFixedExps();calc();loadCkState();renderLoans();renderBills();renderCalendar();renderHist();updEF();renderSpending();renderGoals();updNW();calcMP2();calcInt();renderMonthly();renderForecast();calcStreak();renderCharts();updDTI();renderPayoffMotivator();checkBillAutoReset();renderInvests();renderInvestReadiness();calcInvPlan();renderSideIncome();initChat();}
+function initApp(){renderFixedExps();calc();loadCkState();renderLoans();renderBills();renderCalendar();renderHist();updEF();renderSpending();renderGoals();updNW();calcMP2();calcInt();renderMonthly();renderForecast();calcStreak();renderCharts();updDTI();renderPayoffMotivator();checkBillAutoReset();renderInvests();renderInvestReadiness();calcInvPlan();renderSideIncome();initAtome();renderAtomePayLog();renderLoanPayLog();renderDebtFreedom();renderDebtPriority();renderChallenge();scheduleNotifications();initChat();}
 
 // SETTINGS
 function getFixedExps(){return DJ('fixedExps',[{id:1,name:'Gym',amt:1000,day:1,cat:'fitness'},{id:2,name:'Coach',amt:1500,day:1,cat:'coaching'},{id:3,name:'Home electricity',amt:600,day:1,cat:'utilities'},{id:4,name:'BH electricity',amt:600,day:1,cat:'utilities'},{id:5,name:'WiFi',amt:600,day:1,cat:'internet'}]);}
@@ -1112,12 +1472,25 @@ function calc(){
   document.getElementById('w1').textContent=p(w*.27);document.getElementById('w2').textContent=p(w*.23);document.getElementById('w3').textContent=p(w*.32);document.getElementById('w4').textContent=p(w*.18);
   document.getElementById('act1').textContent=p(sv);document.getElementById('act2').textContent=p(Math.max(0,nr));document.getElementById('act3').textContent=p(w);document.getElementById('act4').textContent=p(fw);
   document.getElementById('bar-n').style.width=sp.np+'%';document.getElementById('bar-w').style.width=sp.wp+'%';document.getElementById('bar-s').style.width=sp.sp+'%';
-  document.getElementById('ck-sv').textContent=p(sv)+' → Maribank';document.getElementById('ck-nd').textContent=p(Math.max(0,nr))+' — label "Needs"';document.getElementById('ck-wt').textContent=p(w)+' — stop at zero';
+  document.getElementById('ck-sv').textContent=p(sv)+' → Maribank';
+  var ab4=+DJ('atome_bal',0);var ckAt=document.getElementById('ck-atome-amt');
+  if(ckAt)ckAt.textContent=ab4>0?p(Math.round(ab4/4))+'/week → Maribank "Atome" pocket':'No Atome balance this week';document.getElementById('ck-nd').textContent=p(Math.max(0,nr))+' — label "Needs"';document.getElementById('ck-wt').textContent=p(w)+' — stop at zero';
   if(lnAmt>0){document.getElementById('ln-step').style.display='flex';document.getElementById('act-ln').textContent=p(lnAmt);document.getElementById('ck-loan-r').style.display='flex';document.getElementById('ck-ln').textContent=p(lnAmt);}
   else{document.getElementById('ln-step').style.display='none';document.getElementById('ck-loan-r').style.display='none';}
   if(lockOn){lockBudget=w;updLock();}document.getElementById('lock-amt').textContent=p(w);document.getElementById('lock-st').textContent=lockOn?'Locked':'Tap lock to activate';
   var pct=sp.np+sp.wp+sp.sp;var pc2=document.getElementById('pct-chk');if(pc2){pc2.textContent='Total: '+pct+'%'+(pct===100?' ✓':' ⚠');pc2.style.color=pct===100?'var(--gr)':'var(--rd)';}
+  // Atome purchases breakdown for action row
+  var atomePurchList=DJ('atome_purchases',[]);
+  var needsAtomeMo=atomePurchList.filter(function(e){return e.bucket==='needs';}).reduce(function(a,e){return a+e.split;},0);
+  var wantsAtomeMo=atomePurchList.filter(function(e){return e.bucket==='wants';}).reduce(function(a,e){return a+e.split;},0);
+
   var ab='';
+  var now5=new Date();
+  var atomeDue5=new Date(now5.getFullYear(),now5.getMonth(),13);
+  if(now5>atomeDue5) atomeDue5=new Date(now5.getFullYear(),now5.getMonth()+1,13);
+  var atomeDaysLeft=Math.ceil((atomeDue5-now5)/864e5);
+  var atomeBal2=+DJ('atome_bal',0);
+  if(atomeBal2>0&&atomeDaysLeft<=7) ab+='<div class="alt a-d">⚠ Atome due in '+atomeDaysLeft+' days — '+p(atomeBal2)+' due on 13th. Set aside '+p(Math.round(atomeBal2/4))+' this week in Maribank "Atome" pocket.</div>';
   if(lnAmt>0) ab+='<div class="alt a-d">Loan deducted: '+p(lnAmt)+'. Set aside in Maribank pocket now.</div>';
   if(nr<600&&nr>0) ab+='<div class="alt a-w">Needs tight after fixed bills. Cook at home this week.</div>';
   if(lnAmt===0) ab+='<div class="alt a-ok">Clean week — full budget in effect.</div>';
@@ -1152,18 +1525,55 @@ function renderLoans(){
   var loans=DJ('loans',[]).filter(function(l){return l.active;});
   if(!loans.length){document.getElementById('loans-list').innerHTML='<div class="emp">No loans. Add one above.</div>';return;}
   var now=new Date().getDate();
-  document.getElementById('loans-list').innerHTML=loans.map(function(l,i){
+  document.getElementById('loans-list').innerHTML=allLoans.map(function(l,i){
     var paid=Math.round(((l.orig-l.bal)/l.orig)*100);var dl=l.due-now;if(dl<0)dl+=30;
     var cls=dl<=3?'overdue':dl<=7?'due-soon':'ok';
     var int=l.bal*(l.int/100);var mos=l.int>0&&l.pay>int?Math.ceil(l.bal/(l.pay-int)):null;
-    return'<div class="loan-item '+cls+'"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><div><div style="font-size:13px;font-weight:600;">'+l.name+'</div><div style="display:flex;gap:5px;margin-top:3px;"><span class="bdg b-g">'+l.type+'</span>'+(dl<=3?'<span class="bdg b-d">'+dl+'d left</span>':dl<=7?'<span class="bdg b-w">'+dl+'d</span>':'<span class="bdg b-ok">Day '+l.due+'</span>')+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--rd)">'+p(l.bal)+'</div></div></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="flex:1;background:var(--sur);height:5px;border-radius:3px;overflow:hidden;"><div style="height:5px;border-radius:3px;background:var(--gr);width:'+paid+'%;"></div></div><span style="font-size:10px;color:var(--gr);font-weight:600;">'+paid+'%</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:7px;font-size:11px;"><div style="color:var(--mu)">Payment<div style="color:var(--tx);font-weight:600;">'+p(l.pay)+'</div></div><div style="color:var(--mu)">Interest/mo<div style="color:var(--rd);font-weight:600;">'+p(int)+'</div></div><div style="color:var(--mu)">Payoff<div style="color:var(--bl);font-weight:600;">'+(mos?mos+'mo':'N/A')+'</div></div></div><div style="display:flex;gap:5px;"><button onclick="payLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--mu);">Log payment</button><button onclick="closeLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--gr);">Mark paid</button><button onclick="delLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--rd);">Delete</button></div></div>';
+    if(l.isAtome){
+      return'<div class="loan-item ok" style="border-left-color:var(--pk);">'
+        +'<div style="display:flex;justify-content:space-between;margin-bottom:6px;">'
+        +'<div><div style="font-size:13px;font-weight:600;">Atome <span class="bdg" style="background:var(--pk-bg);color:var(--pk);">BNPL</span></div>'
+        +'<div style="font-size:11px;color:var(--mu);margin-top:2px;">Buy Now Pay Later · Due 13th · 3 installments</div></div>'
+        +'<div style="text-align:right;"><div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);">'+p(l.bal)+'</div><div style="font-size:10px;color:var(--mu);">total due</div></div></div>'
+        +'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:7px;font-size:11px;">'
+        +'<div style="color:var(--mu);">Monthly payment<div style="color:var(--pk);font-weight:600;font-family:DM Mono,monospace;">'+p(l.pay)+'</div></div>'
+        +'<div style="color:var(--mu);">Interest<div style="color:var(--gr);font-weight:600;">0% (interest free)</div></div>'
+        +'<div style="color:var(--mu);">Payoff<div style="color:var(--bl);font-weight:600;">3 months</div></div></div>'
+        +'<div style="font-size:11px;color:var(--mu);padding:6px 8px;background:var(--sur);border-radius:6px;margin-bottom:6px;">Manage in the <span style="color:var(--pk);font-weight:600;">Atome tab</span> — log purchases, track needs vs wants, set spending limits.</div>'
+        +'<div style="display:flex;gap:5px;"><button onclick="openAtomeTab()" style="flex:1;padding:6px;font-size:11px;font-family:Sora,sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--pk);background:var(--pk-bg);color:var(--pk);">Open Atome tab</button></div>'+'</div>';
+    }
+    return'<div class="loan-item '+cls+'"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><div><div style="font-size:13px;font-weight:600;">'+l.name+'</div><div style="display:flex;gap:5px;margin-top:3px;"><span class="bdg b-g">'+l.type+'</span>'+(dl<=3?'<span class="bdg b-d">'+dl+'d left</span>':dl<=7?'<span class="bdg b-w">'+dl+'d</span>':'<span class="bdg b-ok">Day '+l.due+'</span>')+'</div></div><div style="text-align:right;"><div style="font-size:15px;font-weight:700;font-family:\'DM Mono\',monospace;color:var(--rd)">'+p(l.bal)+'</div></div></div><div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;"><div style="flex:1;background:var(--sur);height:5px;border-radius:3px;overflow:hidden;"><div style="height:5px;border-radius:3px;background:var(--gr);width:'+paid+'%;"></div></div><span style="font-size:10px;color:var(--gr);font-weight:600;">'+paid+'%</span></div><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin-bottom:7px;font-size:11px;"><div style="color:var(--mu)">Payment<div style="color:var(--tx);font-weight:600;">'+p(l.pay)+'</div></div><div style="color:var(--mu)">Interest/mo<div style="color:var(--rd);font-weight:600;">'+p(int)+'</div></div><div style="color:var(--mu)">Payoff<div style="color:var(--bl);font-weight:600;">'+(mos?mos+'mo':'N/A')+'</div></div></div><div style="display:flex;gap:5px;"><button onclick="payLoanWithLog('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--mu);">Log payment</button><button onclick="closeLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--gr);">Mark paid</button><button onclick="delLoan('+i+')" style="flex:1;padding:6px;font-size:11px;font-family:\'Sora\',sans-serif;font-weight:600;border-radius:var(--rs);cursor:pointer;border:1px solid var(--bd2);background:transparent;color:var(--rd);">Delete</button></div></div>';
   }).join('');
 }
-function payLoan(i){var loans=DJ('loans',[]).filter(function(l){return l.active;});var a=prompt('Payment amount (₱):');if(!a)return;loans[i].bal=Math.max(0,loans[i].bal-parseFloat(a));var all=DJ('loans',[]);var ai=all.findIndex(function(l){return l.id===loans[i].id;});if(ai>-1)all[ai]=loans[i];DS('loans',all);renderLoans();updDTI();updNW();}
-function closeLoan(i){var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active[i].bal=0;active[i].active=false;DS('loans',loans);renderLoans();updAutoLnSel();updDTI();updNW();}
-function delLoan(i){var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active.splice(i,1);var rest=loans.filter(function(l){return !l.active;});DS('loans',active.concat(rest));renderLoans();updAutoLnSel();updDTI();updNW();}
+function payLoan(i){
+  var atomeBal=+DJ('atome_bal',0);var offset=atomeBal>0?1:0;var adjI=i-offset;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  if(adjI<0){showToast('Manage Atome balance in the Atome tab','info');return;}
+  var a=prompt('Payment amount (₱):');if(!a)return;loans[adjI].bal=Math.max(0,loans[adjI].bal-parseFloat(a));var all=DJ('loans',[]);var ai=all.findIndex(function(l){return l.id===loans[i].id;});if(ai>-1)all[ai]=loans[i];DS('loans',all);renderLoans();updDTI();updNW();}
+function closeLoan(i){
+  var atomeBal=+DJ('atome_bal',0);var offset=atomeBal>0?1:0;var adjI=i-offset;
+  if(adjI<0){if(confirm('Mark Atome as fully paid?')){DS('atome_bal',0);renderLoans();updDTI();showToast('Atome marked as paid!','ok','✓');}return;}
+  var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active[adjI].bal=0;active[adjI].active=false;DS('loans',loans);renderLoans();updAutoLnSel();updDTI();updNW();}
+function delLoan(i){
+  var atomeBal=+DJ('atome_bal',0);var offset=atomeBal>0?1:0;var adjI=i-offset;
+  if(adjI<0){if(confirm('Remove Atome from loan list? (Balance stays in Atome tab)')){DS('atome_bal',0);renderLoans();updDTI();showToast('Atome removed','info');}return;}
+  var loans=DJ('loans',[]);var active=loans.filter(function(l){return l.active;});active.splice(adjI,1);var rest=loans.filter(function(l){return !l.active;});DS('loans',active.concat(rest));renderLoans();updAutoLnSel();updDTI();updNW();}
 function updAutoLnSel(){var loans=DJ('loans',[]).filter(function(l){return l.active&&l.auto==='yes';});var sel=document.getElementById('auto-ln');sel.innerHTML='<option value="0">None this week</option>'+loans.map(function(l){return'<option value="'+l.pay+'">'+l.name+' — '+p(l.pay)+'</option>';}).join('');}
-function updDTI(){var loans=DJ('loans',[]).filter(function(l){return l.active;});var tp=loans.reduce(function(a,l){return a+l.pay;},0);var sal=(+document.getElementById('sal').value||7373)*4;var dti=sal>0?Math.round((tp/sal)*100):0;document.getElementById('dti-n').textContent=dti+'%';document.getElementById('dti-n').style.color=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-bar').style.width=Math.min(100,dti)+'%';document.getElementById('dti-bar').style.background=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-alt').innerHTML=dti===0?'<div class="alt a-ok">No active loans. Excellent.</div>':dti<30?'<div class="alt a-ok">DTI '+dti+'% — Safe zone.</div>':dti<40?'<div class="alt a-w">DTI '+dti+'% — Caution. Avoid new loans.</div>':'<div class="alt a-d">DTI '+dti+'% — DANGER. No new loans.</div>';}
+function openAtomeTab(){
+  var atomeNb=document.querySelector('.nb[onclick*="atome"]');
+  if(atomeNb){atomeNb.click();}
+}
+function getAtomeLoanEntry(){
+  var bal=+DJ('atome_bal',0);if(!bal)return null;
+  var now=new Date();var due=new Date(now.getFullYear(),now.getMonth(),13);if(now>due)due=new Date(now.getFullYear(),now.getMonth()+1,13);
+  return{id:'atome_synthetic',name:'Atome (Buy Now Pay Later)',type:'bnpl',orig:bal,bal:bal,int:0,pay:Math.round(bal/3),due:13,auto:'yes',active:true,isAtome:true};
+}
+function updDTI(){
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var atomeBal=+DJ('atome_bal',0);
+  var totalPay=loans.reduce(function(a,l){return a+l.pay;},0);
+  if(atomeBal>0) totalPay+=Math.round(atomeBal/3);
+  var sal=(+document.getElementById('sal').value||7373)*4;var dti=sal>0?Math.round((totalPay/sal)*100):0;document.getElementById('dti-n').textContent=dti+'%';document.getElementById('dti-n').style.color=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-bar').style.width=Math.min(100,dti)+'%';document.getElementById('dti-bar').style.background=dti<30?'var(--gr)':dti<40?'var(--am)':'var(--rd)';document.getElementById('dti-alt').innerHTML=dti===0?'<div class="alt a-ok">No active loans. Excellent.</div>':dti<30?'<div class="alt a-ok">DTI '+dti+'% — Safe zone.</div>':dti<40?'<div class="alt a-w">DTI '+dti+'% — Caution. Avoid new loans.</div>':'<div class="alt a-d">DTI '+dti+'% — DANGER. No new loans.</div>';}
 
 // BILLS
 function addBill(){var nm=document.getElementById('bl-nm').value.trim();if(!nm)return;var bills=DJ('bills',[]);bills.push({id:Date.now(),name:nm,amt:+document.getElementById('bl-amt').value||0,day:+document.getElementById('bl-day').value||1,cat:document.getElementById('bl-cat').value});DS('bills',bills);document.getElementById('bl-nm').value='';document.getElementById('bl-amt').value='';renderBills();renderCalendar();}
@@ -1240,6 +1650,7 @@ function togCk(el,action){
     if(action==='maribank'){var ef=DJ('ef',{bal:0,log:[]});var efPart=Math.round(sp.s*.68);ef.bal+=efPart;ef.log.unshift({amt:efPart,note:'Auto: EF from checklist',date:today});DS('ef',ef);updEF();showToast(p(Math.round(sp.s))+' logged to Maribank','ok','🏦');}
     else if(action==='gosave'){showToast(p(Math.max(0,Math.round(sp.n-s.fixedMonthly/4)))+' logged to GoTyme GoSave','ok','✓');}
     else if(action==='gowallet'){showToast(p(Math.round(sp.w))+' logged to GoTyme wallet','ok','✓');}
+    else if(action==='atome_set'){var ab3=+DJ('atome_bal',0);var as3=Math.round(ab3/4);if(ab3>0)showToast(p(as3)+' set aside in Maribank Atome pocket','ok','🛍');else showToast('No Atome balance to set aside','info');}
   }
   calcHS(+document.getElementById('sal').value||0,0,1,0);
 }
@@ -1527,6 +1938,23 @@ function smartAdviser(q,raw){
     return 'Your current savings rate: '+Math.round((sp.s/sal)*100)+'%\n\nWeekly savings: '+p(sp.s)+'\n  · EF deposit: '+p(Math.round(sp.s*.68))+'\n  · Personal savings: '+p(Math.round(sp.s*.32))+'\n\nMonthly savings: '+p(sp.s*4)+'\nYearly savings: '+p(sp.s*52)+'\n\n'+(sp.s/sal>=.2?'✓ Excellent! 20%+ savings rate puts you ahead of 90% of Filipinos your age.':sp.s/sal>=.1?'Good start. Try to reach 20% savings rate by reducing wants spending.':'Below 10% — try to cut wants and increase savings allocation in Settings.');
   }
 
+  // ── ATOME ──
+  if(q.match(/atome|buy now pay|installment|bnpl|split payment/)){
+    var atomeBal=+DJ('atome_bal',6581.42);
+    var sal2=+document.getElementById('sal').value||7373;
+    var moInc2=sal2*4;
+    var pctAtome=moInc2>0?Math.round((atomeBal/moInc2)*100):0;
+    var weeklySet=Math.round(atomeBal/4);
+    var now4=new Date();var atomeDue4=new Date(now4.getFullYear(),now4.getMonth(),13);if(now4>atomeDue4)atomeDue4=new Date(now4.getFullYear(),now4.getMonth()+1,13);var daysToAtome=Math.ceil((atomeDue4-now4)/864e5);
+    if(mentionedAmt>0){
+      var newBal=atomeBal+Math.round(mentionedAmt/3);
+      var newPct=moInc2>0?Math.round((newBal/moInc2)*100):0;
+      var advice2=newPct>20?'⛔ DO NOT buy this on Atome. It will push your balance to '+p(newBal)+' which is '+newPct+'% of your monthly income — above the 20% safe limit. Pay cash or wait.':newPct>15?'⚠ Caution. This will push Atome to '+newPct+'% of income. Consider if you really need it now.':'✓ Affordable. Adding '+p(Math.round(mentionedAmt/3))+'/month to your Atome. New balance: '+p(newBal)+'.';
+      return 'Atome purchase of '+p(mentionedAmt)+':\n\nSplit: '+p(Math.round(mentionedAmt/3))+'/month x 3\nCurrent balance: '+p(atomeBal)+'\nNew total due: '+p(newBal)+'\n\n'+advice2+'\n\nLog it in the Atome tab to track it properly.';
+    }
+    return 'ATOME STATUS\n\nCurrent balance due: '+p(atomeBal)+'\nDue in: '+daysToAtome+' days (13th)\nWeekly set aside needed: '+p(weeklySet)+'\nAs % of monthly income: '+pctAtome+'%\n\n'+(pctAtome>20?'⛔ OVER the 20% safe limit. Stop new Atome purchases until balance drops.':pctAtome>10?'⚠ Getting high. Limit new purchases.':'✓ Within safe range.')+('\n\nAction: Every payday set aside '+p(weeklySet)+' in a separate Maribank pocket labeled "Atome". Pay full '+p(atomeBal)+' on the 13th.');
+  }
+
   // ── SIDE INCOME ──
   if(q.match(/side income|extra.*income|freelance.*earn|dagdag.*kita|extra.*kita|project|additional.*income/)){
     var SI2=DJ('sideincome',[]);
@@ -1594,7 +2022,7 @@ function st(tab,btn){
   document.querySelectorAll('#mode-personal .sec').forEach(function(s){s.classList.remove('active');});
   document.querySelectorAll('.nb').forEach(function(b){b.classList.remove('active');});
   document.getElementById('tab-'+tab).classList.add('active');btn.classList.add('active');
-  var actions={monthly:function(){renderMonthly();renderForecast();},spending:renderSpending,networth:updNW,goals:renderGoals,history:calcStreak,charts:renderCharts,loans:function(){renderLoans();updDTI();renderPayoffMotivator();},bills:function(){renderBills();renderCalendar();checkBillAutoReset();},mp2:calcMP2,interest:calcInt,invest:function(){renderInvests();renderInvestReadiness();calcInvPlan();},sideincome:function(){renderSideIncome();}};
+  var actions={monthly:function(){renderMonthly();renderForecast();},spending:renderSpending,networth:updNW,goals:renderGoals,history:calcStreak,charts:renderCharts,loans:function(){renderLoans();updDTI();renderPayoffMotivator();renderDebtFreedom();renderDebtPriority();renderLoanPayLog();},bills:function(){renderBills();renderCalendar();checkBillAutoReset();},mp2:calcMP2,interest:calcInt,invest:function(){renderInvests();renderInvestReadiness();calcInvPlan();},sideincome:function(){renderSideIncome();},atome:function(){initAtome();renderAtomePayLog();},calendar:function(){renderMainCalendar();},challenge:renderChallenge,report:function(){generateReport();renderIncomeStability();}};
   if(actions[tab])actions[tab]();
 }
 
@@ -1820,6 +2248,317 @@ function resetBillsChecked(){
   showToast('Bills checklist reset','info');
 }
 
+// ATOME TRACKER
+var ATOME_CAT_LABELS={clothing:'Clothing',gadget:'Gadget',food:'Food/grocery',health:'Health/beauty',home:'Home',sports:'Sports/fitness',other:'Other'};
+
+function initAtome(){
+  var bal=+DJ('atome_bal',6581.42);
+  document.getElementById('atome-bal-input').value=bal||'';
+  renderAtomeBalance();
+  renderAtomeLog();
+  calcAtomeBudgetImpact();
+  updateAtomeLimitBar();
+  renderDebtFreedom();
+}
+
+function renderAtomeBalance(){
+  var bal=+DJ('atome_bal',6581.42);
+  var el=document.getElementById('atome-balance');
+  if(el) el.textContent=p(bal);
+
+  // Countdown to next 13th
+  var now=new Date();
+  var dueDay=13;
+  var thisMonthDue=new Date(now.getFullYear(),now.getMonth(),dueDay);
+  var nextDue=now<=thisMonthDue?thisMonthDue:new Date(now.getFullYear(),now.getMonth()+1,dueDay);
+  var daysLeft=Math.ceil((nextDue-now)/864e5);
+  var dueMonthName=nextDue.toLocaleDateString('en-PH',{month:'long',year:'numeric'});
+
+  var billDay=3;
+  var thisMonthBill=new Date(now.getFullYear(),now.getMonth(),billDay);
+  var nextBill=now<=thisMonthBill?thisMonthBill:new Date(now.getFullYear(),now.getMonth()+1,billDay);
+  var daysToBill=Math.ceil((nextBill-now)/864e5);
+
+  var dEl=document.getElementById('atome-days');
+  var dlEl=document.getElementById('atome-due-label');
+  if(dEl){
+    dEl.textContent=daysLeft;
+    dEl.style.color=daysLeft<=3?'var(--rd)':daysLeft<=7?'var(--am)':'var(--gr)';
+  }
+  if(dlEl) dlEl.textContent='until '+nextDue.toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+
+  var barEl=document.getElementById('atome-countdown-bar');
+  if(barEl){
+    var barClr=daysLeft<=3?'var(--rd)':daysLeft<=7?'var(--am)':'var(--pk)';
+    var total=10;var elapsed=Math.max(0,10-Math.min(10,daysLeft));
+    var pct=Math.round((elapsed/total)*100);
+    var msg=daysLeft<=0?'<span style="color:var(--rd);font-weight:600;">DUE TODAY — PAY NOW</span>':daysLeft<=7?'<span style="color:'+barClr+';font-weight:600;">⚠ '+daysLeft+' days — prepare payment</span>':'<span style="color:var(--gr);">'+daysLeft+' days left — no action needed yet</span>';
+    barEl.innerHTML='<div style="background:var(--sur2);height:6px;border-radius:3px;overflow:hidden;margin-bottom:5px;"><div style="height:6px;border-radius:3px;background:'+barClr+';width:'+pct+'%;transition:width .5s;"></div></div><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--mu);margin-bottom:4px;"><span>Bill arrives: '+daysToBill+'d (3rd)</span><span>Due: '+dueMonthName+'</span></div><div style="font-size:11px;text-align:center;">'+msg+'</div>';
+  }
+
+  // Update weekly breakdown in Atome tab
+  var purchases=DJ('atome_purchases',[]);
+  var needsMo=purchases.filter(function(e){return e.bucket==='needs';}).reduce(function(a,e){return a+e.split;},0);
+  var wantsMo=purchases.filter(function(e){return e.bucket==='wants';}).reduce(function(a,e){return a+e.split;},0);
+  var uncat=Math.max(0,Math.round(bal/3)-needsMo-wantsMo);
+  wantsMo+=uncat;
+  var needsWk=Math.round(needsMo/1);
+  var wantsWk=Math.round(wantsMo/1);
+  var totalWk=Math.round(bal/4);
+  // Proportional split
+  var total3=needsMo+wantsMo;
+  if(total3>0){
+    needsWk=Math.round((needsMo/total3)*totalWk);
+    wantsWk=totalWk-needsWk;
+  } else {
+    needsWk=0;wantsWk=totalWk;
+  }
+  var nwEl=document.getElementById('atome-needs-wk');var wwEl=document.getElementById('atome-wants-wk');var twEl=document.getElementById('atome-total-wk');
+  if(nwEl) nwEl.textContent=p(needsWk);
+  if(wwEl) wwEl.textContent=p(wantsWk);
+  if(twEl) twEl.textContent=p(totalWk);
+
+  // Safe limit display
+  var sal=+document.getElementById('sal').value||7373;
+  var moInc=sal*4;
+  var safeLimitEl=document.getElementById('atome-safe-limit');
+  if(safeLimitEl) safeLimitEl.textContent=Math.round(moInc*.20).toLocaleString();
+
+  // Pct of income for DTI
+  var pctInc=moInc>0?Math.round((bal/moInc)*100):0;
+  updateAtomeLimitBar();
+}
+
+function updateAtomeBal(){
+  var val=+document.getElementById('atome-bal-input').value||0;
+  DS('atome_bal',val);
+  renderAtomeBalance();
+  calcAtomeBudgetImpact();
+  showToast('Atome balance updated to '+p(val),'ok','✓');
+}
+
+function calcAtomeSplit(){
+  var total=+document.getElementById('atome-total').value||0;
+  if(total<=0){document.getElementById('atome-split-preview').style.display='none';return;}
+  var split=Math.round(total/3*100)/100;
+  var p1=split,p2=split,p3=total-split*2;
+  document.getElementById('atome-p1').textContent=p(p1);
+  document.getElementById('atome-p2').textContent=p(p2);
+  document.getElementById('atome-p3').textContent=p(p3);
+  var currentBal=+DJ('atome_bal',6581.42);
+  var newTotal=currentBal+p1;
+  document.getElementById('atome-new-total').textContent=p(newTotal);
+  document.getElementById('atome-split-preview').style.display='block';
+  var sal=+document.getElementById('sal').value||7373;
+  var moInc=sal*4;
+  var pctNew=moInc>0?Math.round((newTotal/moInc)*100):0;
+  var warnEl=document.getElementById('atome-budget-warning');
+  if(pctNew>20) warnEl.innerHTML='<span style="color:var(--rd);font-weight:600;">⚠ This will exceed 20% of your monthly income! Reconsider this purchase.</span>';
+  else if(pctNew>15) warnEl.innerHTML='<span style="color:var(--am);">Caution: Atome will be '+pctNew+'% of monthly income. Getting high.</span>';
+  else warnEl.innerHTML='<span style="color:var(--gr);">✓ Within safe range at '+pctNew+'% of monthly income.</span>';
+}
+
+function addAtomePurchase(){
+  var item=document.getElementById('atome-item').value.trim();
+  var total=+document.getElementById('atome-total').value||0;
+  var cat=document.getElementById('atome-cat').value;
+  var bucket=document.getElementById('atome-bucket')?document.getElementById('atome-bucket').value:'wants';
+  if(!item||!total){showToast('Enter item name and amount','warn');return;}
+  var split=Math.round(total/3);
+  var limit=+DJ('atome_limit',0);var currentBal=+DJ('atome_bal',0);
+  if(limit>0&&(currentBal+split)>limit){if(!confirm('This exceeds your Atome limit of '+p(limit)+'! New balance: '+p(currentBal+split)+'. Add anyway?'))return;}
+  var purchases=DJ('atome_purchases',[]);
+  var today=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+  purchases.unshift({id:Date.now(),item:item,total:total,split:split,cat:cat,bucket:bucket,date:today});
+  DS('atome_purchases',purchases);
+  DS('atome_bal',currentBal+split);
+  document.getElementById('atome-item').value='';document.getElementById('atome-total').value='';
+  document.getElementById('atome-split-preview').style.display='none';
+  renderAtomeBalance();renderAtomeLog();calcAtomeBudgetImpact();updateAtomeLimitBar();renderDebtFreedom();
+  showToast(item+' — '+p(split)+'/mo x3 from '+(bucket==='needs'?'Needs':'Wants'),'ok','🛍');
+}
+
+function calcAtomeBudgetImpact(){
+  renderAtomeBalance();
+}
+
+function renderAtomeLog(){
+  var purchases=DJ('atome_purchases',[]);
+  if(!purchases.length){
+    document.getElementById('atome-log').innerHTML='<div class="emp">No purchases logged yet.</div>';
+    document.getElementById('atome-log-total').style.display='none';
+    return;
+  }
+  var totalAll=purchases.reduce(function(a,e){return a+e.total;},0);
+  var html=purchases.map(function(e){
+    var split=e.split||Math.round(e.total/3);
+    var bClr=e.bucket==='needs'?'var(--bl)':'var(--am)';
+    var bLbl=e.bucket==='needs'?'Needs':'Wants';
+    var catLbl=ATOME_CAT_LABELS[e.cat]||e.cat||'Other';
+    return'<div style="padding:10px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;">'
+      +'<div><div style="font-size:13px;font-weight:600;">'+e.item+'</div>'
+      +'<div style="display:flex;gap:5px;margin-top:3px;flex-wrap:wrap;">'
+      +'<span class="bdg" style="background:var(--pk-bg);color:var(--pk);">'+catLbl+'</span>'
+      +'<span class="bdg" style="background:var(--sur2);color:'+bClr+';">'+bLbl+'</span>'
+      +'</div>'
+      +'<div style="font-size:11px;color:var(--mu);margin-top:3px;">'+p(split)+'/mo x3 · '+e.date+'</div></div>'
+      +'<div style="text-align:right;flex-shrink:0;"><div style="font-size:15px;font-weight:700;font-family:DM Mono,monospace;color:var(--pk);">'+p(e.total)+'</div></div></div>';
+  }).join('');
+  document.getElementById('atome-log').innerHTML=html;
+  document.getElementById('atome-log-total').style.display='flex';
+  document.getElementById('atome-total-all').textContent=p(totalAll);
+}
+
+function setWeekMode(mode){
+  var modes={balanced:{label:'Balanced',np:50,wp:30,sp:20,desc:'Standard 50/30/20. Balanced across needs, wants, savings.',c:'var(--bl)'},debt:{label:'Debt-first',np:60,wp:10,sp:30,desc:'60% needs+debt, 10% wants, 30% attacks debt. Every extra peso destroys your balance.',c:'var(--rd)'},save:{label:'Save mode',np:50,wp:20,sp:30,desc:'30% savings, 20% wants. Build emergency fund faster.',c:'var(--gr)'},invest:{label:'Invest mode',np:50,wp:25,sp:25,desc:'25% savings, 25% wants. Balanced growth and lifestyle.',c:'var(--pu)'}};
+  var m=modes[mode];if(!m)return;
+  document.getElementById('bm-np').value=m.np;
+  document.getElementById('bm-wp').value=m.wp;
+  document.getElementById('bm-sp').value=m.sp;
+  ['balanced','debt','save','invest'].forEach(function(k){
+    var b=document.getElementById('wm-'+k);
+    if(b){b.style.borderColor='var(--bd2)';b.style.background='var(--sur2)';b.style.color='var(--mu)';}
+  });
+  var btn=document.getElementById('wm-'+mode);
+  if(btn){btn.style.borderColor=m.c;btn.style.background=m.c.replace('var(--','').replace(')','');btn.style.color=m.c;}
+  var mb=document.getElementById('mode-badge');if(mb){mb.textContent=m.label;}
+  var md=document.getElementById('mode-desc');if(md){md.textContent=m.desc;}
+  setBM('pct');calc();
+  showToast(m.label+' — '+m.np+'/'+m.wp+'/'+m.sp+' split','ok','⚖');
+}
+
+function oneTabPayday(){
+  var sal=+document.getElementById('sal').value||0;
+  if(!sal){showToast('Enter your salary amount first','warn');return;}
+  calc();saveEntry();
+  var lnAmt=+document.getElementById('auto-ln').value||0;
+  var av=Math.max(0,sal-lnAmt);
+  var sp=getBM(av);
+  var ef=DJ('ef',{bal:0,log:[]});
+  var efPart=Math.round(sp.s*.68);
+  var today=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric'});
+  ef.bal+=efPart;
+  ef.log.unshift({amt:efPart,note:'One-tap payday split',date:today});
+  DS('ef',ef);updEF();
+  var atomeBal=+DJ('atome_bal',0);
+  var atomeSet=atomeBal>0?Math.round(atomeBal/4):0;
+  var summary='PAYDAY SPLIT DONE!\n\n'
+    +'EF deposit: '+p(efPart)+' → Maribank\n'
+    +'Personal savings: '+p(Math.round(sp.s*.32))+' → Maribank\n'
+    +'Needs: '+p(Math.round(sp.n))+' → GoTyme GoSave\n'
+    +'Wants: '+p(Math.round(sp.w))+' → GoTyme wallet'
+    +(atomeSet>0?'\nAtome reserve: '+p(atomeSet)+' → Maribank pocket':'')
+    +'\n\nSalary saved to history.';
+  showToast('Payday split complete!','ok','⚡');
+  setTimeout(function(){alert(summary);},500);
+}
+
+function setAtomeLimit(){
+  var limit=+document.getElementById('atome-limit-input').value||0;
+  if(!limit){showToast('Enter a limit amount','warn');return;}
+  DS('atome_limit',limit);
+  updateAtomeLimitBar();
+  showToast('Atome limit set to '+p(limit),'ok','🔒');
+}
+
+function renderDebtFreedom(){
+  var el=document.getElementById('debt-freedom-content');
+  if(!el)return;
+  var items=[];
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  loans.forEach(function(l){
+    if(l.pay>0&&l.bal>0){
+      var int=l.bal*(l.int/100);
+      var mos=l.pay>int?Math.ceil(l.bal/(l.pay-int)):null;
+      if(mos){var d=new Date();d.setMonth(d.getMonth()+mos);items.push({name:l.name,months:mos,date:d,bal:l.bal});}
+    }
+  });
+  var atomeBal=+DJ('atome_bal',0);
+  if(atomeBal>0){var ad=new Date();ad.setMonth(ad.getMonth()+3);items.push({name:'Atome',months:3,date:ad,bal:atomeBal});}
+  var may7=new Date('2026-05-07');
+  var daysTo=Math.ceil((may7-new Date())/864e5);
+  if(daysTo>0)items.push({name:'Final loan (May 7)',months:Math.ceil(daysTo/30),date:may7,bal:2753.34});
+  if(!items.length){
+    el.innerHTML='<div style="text-align:center;padding:10px 0;"><div style="font-size:20px;font-weight:700;color:var(--gr);">DEBT FREE NOW</div><div style="font-size:12px;color:var(--mu);margin-top:3px;">Start investing aggressively.</div></div>';
+    return;
+  }
+  items.sort(function(a,b){return a.months-b.months;});
+  var last=items[items.length-1];
+  var html='<div style="text-align:center;margin-bottom:11px;">'
+    +'<div style="font-size:11px;color:var(--gr);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;">You will be 100% debt-free on</div>'
+    +'<div style="font-size:22px;font-weight:700;font-family:DM Mono,monospace;color:var(--gr);">'+last.date.toLocaleDateString('en-PH',{month:'long',day:'numeric',year:'numeric'})+'</div>'
+    +'<div style="font-size:11px;color:var(--mu);margin-top:2px;">'+Math.ceil((last.date-new Date())/864e5)+' days from today</div>'
+    +'</div>';
+  items.forEach(function(item,i){
+    html+='<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd);">'
+      +'<div style="width:20px;height:20px;border-radius:50%;background:var(--gr-bg);color:var(--gr);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(i+1)+'</div>'
+      +'<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+item.name+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);">'+item.date.toLocaleDateString('en-PH',{month:'short',year:'numeric'})+' · '+p(item.bal)+'</div></div>'
+      +'<span class="bdg b-ok">'+item.months+'mo</span></div>';
+  });
+  el.innerHTML=html;
+}
+
+function renderDebtPriority(){
+  var el=document.getElementById('debt-priority-list');
+  if(!el)return;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var items=loans.map(function(l){return{name:l.name,bal:l.bal,int:l.int,pay:l.pay};});
+  var atomeBal=+DJ('atome_bal',0);
+  if(atomeBal>0)items.push({name:'Atome',bal:atomeBal,int:0,pay:Math.round(atomeBal/3)});
+  if(!items.length){el.innerHTML='<div class="emp" style="padding:6px 0;">No active debts — you are free!</div>';return;}
+  items.sort(function(a,b){return b.int-a.int;});
+  var html='<div style="font-size:11px;color:var(--mu);margin-bottom:8px;">Pay in this order — highest interest first saves the most money</div>';
+  items.forEach(function(item,i){
+    var clr=item.int>5?'var(--rd)':item.int>0?'var(--am)':'var(--gr)';
+    html+='<div style="display:flex;align-items:center;gap:9px;padding:8px;margin-bottom:5px;background:var(--sur2);border-radius:var(--rs);border-left:3px solid '+clr+';">'
+      +'<div style="font-size:16px;font-weight:700;font-family:DM Mono,monospace;color:'+clr+';flex-shrink:0;">#'+(i+1)+'</div>'
+      +'<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+item.name+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);">'+p(item.bal)+' · '+item.int+'%/mo · '+p(item.pay)+'/mo</div></div>'
+      +'<span class="bdg '+(i===0?'b-d':'b-g')+'">'+(i===0?'Pay first':'#'+(i+1))+'</span></div>';
+  });
+  el.innerHTML=html;
+}
+
+function updAtomeBucketNote(){
+  var b=document.getElementById('atome-bucket');
+  var n=document.getElementById('atome-bucket-note');
+  if(!b||!n)return;
+  if(b.value==='needs'){
+    n.innerHTML='This purchase comes from your <strong style="color:var(--bl);">Needs budget</strong> — gas, groceries. Deducted from GoSave.';
+  } else {
+    n.innerHTML='This purchase comes from your <strong style="color:var(--am);">Wants budget</strong> — clothes, gadgets. Deducted from GoTyme wallet.';
+  }
+}
+
+function updateAtomeLimitBar(){
+  var limit=+DJ('atome_limit',0);
+  var bal=+DJ('atome_bal',0);
+  var badge=document.getElementById('atome-lock-badge');
+  var bar=document.getElementById('atome-limit-bar');
+  if(!badge)return;
+  if(!limit){badge.textContent='No limit set';badge.className='bdg b-g';if(bar)bar.style.display='none';return;}
+  var pct=Math.min(100,Math.round((bal/limit)*100));
+  badge.textContent=p(bal)+' / '+p(limit);
+  badge.className='bdg '+(pct>=100?'b-d':pct>=80?'b-w':'b-ok');
+  if(bar){
+    bar.style.display='block';
+    var fill=document.getElementById('atome-limit-fill');
+    if(fill){fill.style.width=pct+'%';fill.style.background=pct>=100?'var(--rd)':pct>=80?'var(--am)':'var(--pk)';}
+    var ul=document.getElementById('atome-limit-used');
+    var ll=document.getElementById('atome-limit-left');
+    if(ul)ul.textContent=p(bal)+' used';
+    if(ll)ll.textContent=p(Math.max(0,limit-bal))+' remaining';
+  }
+}
+
+function clearAtome(){
+  if(!confirm('Clear all Atome purchase history?'))return;
+  DS('atome_purchases',[]);
+  renderAtomeLog();
+  showToast('Atome purchase log cleared','info');
+}
+
 // SIDE INCOME
 var SI_SOURCE_LABELS={freelance:'Freelance',online:'Online selling',commission:'Commission',bonus:'Bonus/tip',rental:'Rental',investment:'Investment return',gift:'Gift',other:'Other'};
 var SI_SOURCE_COLORS={freelance:'var(--gr)',online:'var(--bl)',commission:'var(--am)',bonus:'var(--pu)',rental:'var(--te)',investment:'var(--or)',gift:'var(--pk)',other:'var(--mu)'};
@@ -1940,9 +2679,344 @@ function withdrawEF(){
   setEFMode('add');
 }
 
+// CALENDAR
+var mainCalMo=new Date().getMonth(), mainCalYr=new Date().getFullYear();
+var MO2=['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+function chgMainCal(d){mainCalMo+=d;if(mainCalMo>11){mainCalMo=0;mainCalYr++;}if(mainCalMo<0){mainCalMo=11;mainCalYr--;}renderMainCalendar();}
+
+function renderMainCalendar(){
+  document.getElementById('main-cal-label').textContent=MO2[mainCalMo]+' '+mainCalYr;
+  var days=['Su','Mo','Tu','We','Th','Fr','Sa'];
+  var bills=DJ('bills',[]);var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  var atomeBal=+DJ('atome_bal',0);
+  var HD=DJ('hist',[]).filter(function(e){return e.mo===mainCalMo&&e.yr===mainCalYr;});
+  var salaryDays=HD.map(function(e){return parseInt((e.date||'').split(' ')[1])||0;}).filter(function(d){return d>0;});
+  var billDays={};
+  bills.forEach(function(b){billDays[b.day]=(billDays[b.day]||[]).concat({name:b.name,type:'bill',amt:b.amt});});
+  loans.forEach(function(l){if(l.due)billDays[l.due]=(billDays[l.due]||[]).concat({name:l.name,type:'loan',amt:l.pay});});
+  if(atomeBal>0){
+    billDays[3]=(billDays[3]||[]).concat({name:'Atome bill arrives',type:'atome-bill',amt:0});
+    billDays[13]=(billDays[13]||[]).concat({name:'Atome due',type:'atome',amt:atomeBal});
+  }
+  var today=new Date();
+  var html=days.map(function(d){return'<div class="cal-dh">'+d+'</div>';}).join('');
+  var first=new Date(mainCalYr,mainCalMo,1).getDay();
+  var total=new Date(mainCalYr,mainCalMo+1,0).getDate();
+  for(var i=0;i<first;i++)html+='<div class="cd emp-d"></div>';
+  for(var d=1;d<=total;d++){
+    var isToday=d===today.getDate()&&mainCalMo===today.getMonth()&&mainCalYr===today.getFullYear();
+    var isSalary=salaryDays.indexOf(d)>-1;
+    var events=billDays[d]||[];
+    var hasAtome=events.some(function(e){return e.type==='atome';});
+    var hasLoan=events.some(function(e){return e.type==='loan';});
+    var hasBill=events.some(function(e){return e.type==='bill'||e.type==='atome-bill';});
+    var dots='';
+    if(isSalary) dots+='<div style="width:5px;height:5px;border-radius:50%;background:var(--gr);margin:1px auto;"></div>';
+    if(hasAtome) dots+='<div style="width:5px;height:5px;border-radius:50%;background:var(--pk);margin:1px auto;"></div>';
+    if(hasLoan) dots+='<div style="width:5px;height:5px;border-radius:50%;background:var(--rd);margin:1px auto;"></div>';
+    if(hasBill) dots+='<div style="width:5px;height:5px;border-radius:50%;background:var(--am);margin:1px auto;"></div>';
+    var bg=isToday?'background:var(--bl-bg);color:var(--bl);':events.length||isSalary?'background:var(--sur2);':'';
+    html+='<div class="cd" style="'+bg+'"><span>'+d+'</span>'+dots+'</div>';
+  }
+  document.getElementById('main-cal-grid').innerHTML=html;
+  // Events list
+  var allEvents=[];
+  for(var day in billDays){billDays[day].forEach(function(e){allEvents.push({day:parseInt(day),name:e.name,type:e.type,amt:e.amt});});}
+  salaryDays.forEach(function(d){allEvents.push({day:d,name:'Salary received',type:'salary',amt:0});});
+  allEvents.sort(function(a,b){return a.day-b.day;});
+  var evHtml=allEvents.map(function(e){
+    var clr=e.type==='salary'?'var(--gr)':e.type==='atome'||e.type==='atome-bill'?'var(--pk)':e.type==='loan'?'var(--rd)':'var(--am)';
+    var icon=e.type==='salary'?'💰':e.type==='atome'?'🛍':e.type==='loan'?'💳':'📋';
+    return'<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd);">'
+      +'<div style="width:28px;height:28px;border-radius:50%;background:'+clr.replace('var(--','').replace(')','');
+  }).join('');
+  if(!allEvents.length) evHtml='<div class="emp">No events this month.</div>';
+  else evHtml=allEvents.map(function(e){
+    var clr=e.type==='salary'?'var(--gr)':e.type==='atome'||e.type==='atome-bill'?'var(--pk)':e.type==='loan'?'var(--rd)':'var(--am)';
+    var icon=e.type==='salary'?'💰':e.type==='atome'?'🛍':e.type==='loan'?'💳':'📋';
+    return'<div style="display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--bd);">'
+      +'<div style="width:30px;height:30px;border-radius:50%;background:var(--sur2);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">'+icon+'</div>'
+      +'<div style="flex:1;"><div style="font-size:12px;font-weight:600;">'+e.name+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);">'+MO2[mainCalMo]+' '+e.day+(e.amt>0?' · '+p(e.amt):'')+'</div></div>'
+      +'<span class="bdg" style="background:'+clr.replace(')',',0.12)').replace('var(','rgba(')+';color:'+clr+';">Day '+e.day+'</span></div>';
+  }).join('');
+  document.getElementById('cal-events-list').innerHTML=evHtml||'<div class="emp">No events this month.</div>';
+}
+
+// ATOME PAYMENT
+function confirmAtomePayment(){
+  var amt=+document.getElementById('atome-pay-amt').value||0;
+  var type=document.getElementById('atome-pay-type').value;
+  var note=document.getElementById('atome-pay-note').value||'Atome payment';
+  var currentBal=+DJ('atome_bal',0);
+  if(!amt){
+    if(type==='full'){amt=currentBal;document.getElementById('atome-pay-amt').value=currentBal;}
+    else if(type==='installment'){amt=Math.round(currentBal/3);document.getElementById('atome-pay-amt').value=amt;}
+    else{showToast('Enter payment amount','warn');return;}
+  }
+  if(amt>currentBal){showToast('Payment exceeds balance of '+p(currentBal),'warn');return;}
+  var newBal=Math.max(0,currentBal-amt);
+  var msg='PAYMENT CONFIRMATION\n\n'
+    +'Amount: '+p(amt)+'\n'
+    +'Current balance: '+p(currentBal)+'\n'
+    +'Remaining after: '+p(newBal)+'\n'
+    +'Type: '+type+'\n'
+    +'Note: '+note+'\n\n'
+    +'Confirm payment?';
+  if(!confirm(msg))return;
+  DS('atome_bal',newBal);
+  var today=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+  var payLog=DJ('atome_pay_log',[]);
+  payLog.unshift({amt:amt,type:type,note:note,date:today,balBefore:currentBal,balAfter:newBal});
+  DS('atome_pay_log',payLog);
+  document.getElementById('atome-pay-amt').value='';
+  document.getElementById('atome-pay-note').value='';
+  renderAtomeBalance();
+  renderAtomePayLog();
+  renderAtomeLog();
+  updDTI();
+  if(newBal===0){showToast('Atome fully paid! Well done!','ok','🎉');setTimeout(function(){showCelebrationSmall('Atome Fully Paid!','Your Atome balance is now ZERO.');},600);}
+  else showToast(p(amt)+' paid. Remaining: '+p(newBal),'ok','✓');
+}
+
+function renderAtomePayLog(){
+  var log=DJ('atome_pay_log',[]);
+  var totalPaid=log.reduce(function(a,e){return a+e.amt;},0);
+  var badge=document.getElementById('atome-paid-total-badge');
+  if(badge)badge.textContent=p(totalPaid)+' paid';
+  if(!log.length){var el=document.getElementById('atome-payment-log');if(el)el.innerHTML='<div class="emp">No payments yet.</div>';return;}
+  var html=log.map(function(e){
+    return'<div style="padding:9px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-size:13px;font-weight:600;color:var(--gr);">-'+p(e.amt)+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);margin-top:2px;">'+e.date+' · '+e.note+'</div>'
+      +'<div style="font-size:11px;color:var(--hi);">Balance: '+p(e.balBefore)+' → '+p(e.balAfter)+'</div></div>'
+      +'<span class="bdg b-ok">'+e.type+'</span></div>';
+  }).join('');
+  var el=document.getElementById('atome-payment-log');
+  if(el)el.innerHTML=html;
+}
+
+// LOAN PAYMENT LOG
+function renderLoanPayLog(){
+  var log=DJ('loan_pay_log',[]);
+  var total=log.reduce(function(a,e){return a+e.amt;},0);
+  var badge=document.getElementById('loan-paid-badge');
+  if(badge)badge.textContent=p(total)+' total paid';
+  if(!log.length){var el=document.getElementById('loan-payment-log');if(el)el.innerHTML='<div class="emp">No payments recorded.</div>';return;}
+  var html=log.slice(0,10).map(function(e){
+    return'<div style="padding:8px 0;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:center;">'
+      +'<div><div style="font-size:12px;font-weight:600;color:var(--gr);">'+p(e.amt)+' — '+e.lender+'</div>'
+      +'<div style="font-size:11px;color:var(--mu);">'+e.date+'</div></div>'
+      +'<span class="bdg b-ok">paid</span></div>';
+  }).join('');
+  var el=document.getElementById('loan-payment-log');
+  if(el)el.innerHTML=html;
+}
+
+// Override payLoan to log payment
+var _origPayLoan=null;
+function payLoanWithLog(i){
+  var atomeBal=+DJ('atome_bal',0);var offset=atomeBal>0?1:0;var adjI=i-offset;
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  if(adjI<0){showToast('Manage Atome in the Atome tab','info');return;}
+  var loan=loans[adjI];
+  var defAmt=loan?loan.pay:0;
+  var a=prompt('Amount to pay for '+loan.name+' (Balance: '+p(loan.bal)+', Suggested: '+p(defAmt)+'):');
+  if(!a)return;
+  var payAmt=parseFloat(a)||0;
+  if(!confirm('Confirm: Pay '+p(payAmt)+' to '+loan.name+'? Remaining: '+p(Math.max(0,loan.bal-payAmt))))return;
+  renderLoans();updDTI();updNW();renderLoanPayLog();renderDebtFreedom();
+  if(loan.bal===0){showToast(loan.name+' fully paid!','ok','🎉');}
+  else showToast(p(payAmt)+' paid. Remaining: '+p(loan.bal),'ok','✓');
+}
+
+function showCelebrationSmall(title,msg){
+  showToast(title+' — '+msg,'ok','🎉');
+}
+
+// SAVINGS CHALLENGE
+function startChallenge(id,days,name,daily){
+  if(DJ('challenge_active',null)){if(!confirm('You have an active challenge. Start a new one?'))return;}
+  var start=new Date().toISOString();
+  DS('challenge_active',{id:id,days:days,name:name,daily:daily,start:start,ticked:[]});
+  renderChallenge();
+  showToast(name+' started! '+days+' days to go.','ok','💪');
+}
+function endChallenge(){
+  if(!confirm('End this challenge?'))return;
+  DS('challenge_active',null);renderChallenge();showToast('Challenge ended','info');
+}
+function tickChallenge(){
+  var ch=DJ('challenge_active',null);if(!ch)return;
+  var today=new Date().toDateString();
+  if(ch.ticked&&ch.ticked.indexOf(today)>-1){showToast('Already ticked today! Come back tomorrow.','info');return;}
+  ch.ticked=ch.ticked||[];ch.ticked.push(today);
+  DS('challenge_active',ch);renderChallenge();
+  showToast('Day '+(ch.ticked.length)+' done! Keep going!','ok','🔥');
+}
+function renderChallenge(){
+  var ch=DJ('challenge_active',null);
+  var activeEl=document.getElementById('challenge-active');
+  var gridEl=document.getElementById('challenge-days-grid');
+  if(!ch){if(activeEl)activeEl.style.display='none';if(gridEl)gridEl.style.display='none';return;}
+  if(activeEl)activeEl.style.display='block';
+  if(gridEl)gridEl.style.display='block';
+  var streak=ch.ticked?ch.ticked.length:0;
+  var pct=Math.round((streak/ch.days)*100);
+  var nm=document.getElementById('challenge-name');if(nm)nm.textContent=ch.name;
+  var sn=document.getElementById('challenge-streak');if(sn)sn.textContent=streak;
+  var pl=document.getElementById('challenge-progress-lbl');if(pl)pl.textContent=streak+' / '+ch.days+' days ('+pct+'%)';
+  var bar=document.getElementById('challenge-bar');if(bar)bar.style.width=pct+'%';
+  var dt=document.getElementById('challenge-daily-target');if(dt)dt.textContent='Daily target: '+p(ch.daily)+'/day';
+  var gridHtml='';
+  for(var i=0;i<ch.days;i++){
+    var done=ch.ticked&&ch.ticked.length>i;
+    gridHtml+='<div style="aspect-ratio:1;border-radius:5px;background:'+(done?'var(--gr)':'var(--sur2)')+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:'+(done?'#fff':'var(--hi)')+';">'+(done?'✓':(i+1))+'</div>';
+  }
+  var cg=document.getElementById('challenge-grid');if(cg)cg.innerHTML=gridHtml;
+}
+
+// INCOME STABILITY SCORE
+function renderIncomeStability(){
+  var el=document.getElementById('income-stability-content');if(!el)return;
+  var HD=DJ('hist',[]);
+  if(HD.length<3){el.innerHTML='<div class="emp" style="padding:8px 0;">Log at least 3 weeks of salary.</div>';return;}
+  var salaries=HD.slice(0,8).map(function(e){return e.sal;});
+  var avg=salaries.reduce(function(a,b){return a+b;},0)/salaries.length;
+  var variance=salaries.reduce(function(a,b){return a+Math.pow(b-avg,2);},0)/salaries.length;
+  var stdDev=Math.sqrt(variance);
+  var cv=avg>0?(stdDev/avg)*100:0;
+  var score=Math.max(0,Math.round(100-cv*1.5));
+  var label=score>=80?'Very stable':score>=60?'Mostly stable':score>=40?'Somewhat variable':'Highly variable';
+  var clr=score>=80?'var(--gr)':score>=60?'var(--bl)':score>=40?'var(--am)':'var(--rd)';
+  var trend=salaries.length>=2?(salaries[0]>salaries[salaries.length-1]?'📈 Income trending UP':'📉 Income trending DOWN'):'';
+  var html='<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px;">'
+    +'<div style="text-align:center;"><div style="font-size:40px;font-weight:700;font-family:DM Mono,monospace;color:'+clr+';">'+score+'</div><div style="font-size:11px;color:var(--mu);">/ 100</div></div>'
+    +'<div><div style="font-size:14px;font-weight:600;color:'+clr+';">'+label+'</div>'
+    +(trend?'<div style="font-size:12px;color:var(--mu);margin-top:3px;">'+trend+'</div>':'')
+    +'<div style="font-size:11px;color:var(--mu);margin-top:3px;">Based on last '+salaries.length+' weeks</div></div></div>';
+  html+='<div class="pw" style="margin-bottom:8px;"><div class="pf" style="width:'+score+'%;background:'+clr+';"></div></div>';
+  html+='<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;">';
+  html+='<div class="met"><div class="ml">Average</div><div class="mv">'+p(avg)+'</div></div>';
+  html+='<div class="met"><div class="ml">Highest</div><div class="mv" style="color:var(--gr);">'+p(Math.max.apply(null,salaries))+'</div></div>';
+  html+='<div class="met"><div class="ml">Lowest</div><div class="mv" style="color:var(--rd);">'+p(Math.min.apply(null,salaries))+'</div></div>';
+  html+='</div>';
+  if(cv>30)html+='<div class="alt a-w" style="margin-top:8px;">Income is variable. Always budget using your lowest expected salary to avoid shortfalls.</div>';
+  else html+='<div class="alt a-ok" style="margin-top:8px;">Income is consistent. You can plan reliably around your average salary.</div>';
+  el.innerHTML=html;
+}
+
+// MONTHLY REPORT
+function generateReport(){
+  var mo=+document.getElementById('report-month').value;
+  var yr=+document.getElementById('report-year').value;
+  var HD=DJ('hist',[]).filter(function(e){return e.mo===mo&&e.yr===yr;});
+  var el=document.getElementById('report-content');
+  if(!HD.length){el.innerHTML='<div class="emp">No data for this month.</div>';return;}
+  var inc=HD.reduce(function(a,e){return a+e.sal;},0);
+  var sav=HD.reduce(function(a,e){return a+(e.sav||0);},0);
+  var n=HD.reduce(function(a,e){return a+(e.n||0);},0);
+  var w=HD.reduce(function(a,e){return a+(e.w||0);},0);
+  var ln=HD.reduce(function(a,e){return a+(e.loan||0);},0);
+  var ef=DJ('ef',{bal:0}).bal;
+  var rate=inc>0?Math.round((sav/inc)*100):0;
+  var html='<div style="background:var(--sur2);border-radius:var(--rs);padding:12px;margin-bottom:10px;">';
+  html+='<div style="font-size:13px;font-weight:700;margin-bottom:10px;">'+MO2[mo]+' '+yr+' · Financial Report</div>';
+  html+='<div class="ri"><span class="rl">Total income</span><span class="rv" style="color:var(--bl);">'+p(inc)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Total needs spent</span><span class="rv">'+p(n)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Total wants spent</span><span class="rv" style="color:var(--am);">'+p(w)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Total saved</span><span class="rv" style="color:var(--gr);">'+p(sav)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Loan payments</span><span class="rv" style="color:var(--rd);">'+p(ln)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Savings rate</span><span class="rv" style="color:'+( rate>=20?'var(--gr)':rate>=10?'var(--am)':'var(--rd)')+';font-weight:700;">'+rate+'%</span></div>';
+  html+='<div class="ri"><span class="rl">EF balance</span><span class="rv" style="color:var(--gr);">'+p(ef)+'</span></div>';
+  html+='<div class="ri"><span class="rl">Weeks logged</span><span class="rv">'+HD.length+'</span></div>';
+  html+='</div>';
+  html+='<div class="alt '+(rate>=20?'a-ok':rate>=10?'a-w':'a-d')+'">'+(rate>=20?'Excellent month! 20%+ savings rate.':rate>=10?'Decent month. Try to reach 20% savings.':'Low savings rate this month. Review your wants spending.')+'</div>';
+  el.innerHTML=html;
+}
+
+function copyReport(){
+  var mo=+document.getElementById('report-month').value;
+  var yr=+document.getElementById('report-year').value;
+  var HD=DJ('hist',[]).filter(function(e){return e.mo===mo&&e.yr===yr;});
+  if(!HD.length){showToast('No data to copy','warn');return;}
+  var inc=HD.reduce(function(a,e){return a+e.sal;},0);
+  var sav=HD.reduce(function(a,e){return a+(e.sav||0);},0);
+  var n=HD.reduce(function(a,e){return a+(e.n||0);},0);
+  var w=HD.reduce(function(a,e){return a+(e.w||0);},0);
+  var ln=HD.reduce(function(a,e){return a+(e.loan||0);},0);
+  var rate=inc>0?Math.round((sav/inc)*100):0;
+  var txt='📊 FINANCIAL REPORT — '+MO2[mo].toUpperCase()+' '+yr+'\n'
+    +'================================\n'
+    +'💰 Total income: '+p(inc)+'\n'
+    +'🔵 Needs spent: '+p(n)+'\n'
+    +'🟡 Wants spent: '+p(w)+'\n'
+    +'🟢 Total saved: '+p(sav)+'\n'
+    +'💳 Loan payments: '+p(ln)+'\n'
+    +'📈 Savings rate: '+rate+'%\n'
+    +'🏦 EF balance: '+p(DJ('ef',{bal:0}).bal)+'\n'
+    +'================================\n'
+    +'Generated by Budget App v6.2';
+  if(navigator.clipboard){navigator.clipboard.writeText(txt).then(function(){showToast('Report copied! Paste to Telegram.','ok','📋');});}
+  else{var ta=document.createElement('textarea');ta.value=txt;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('Report copied!','ok','📋');}
+}
+
+// RECEIPT SCANNER
+function scanReceipt(input){
+  var file=input.files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    // Simple amount detection from image - look for common receipt patterns
+    // Since we can't do OCR in pure JS without a library, we show manual entry
+    document.getElementById('receipt-result').style.display='block';
+    document.getElementById('receipt-amount').focus();
+    showToast('Photo uploaded. Enter the total amount from your receipt.','info','📷');
+  };
+  reader.readAsDataURL(file);
+}
+function useReceiptAmount(){
+  var amt=+document.getElementById('receipt-amount').value||0;
+  if(!amt){showToast('Enter the receipt amount first','warn');return;}
+  document.getElementById('sp-amt').value=amt;
+  document.getElementById('receipt-result').style.display='none';
+  document.getElementById('receipt-amount').value='';
+  document.getElementById('receipt-file').value='';
+  showToast(p(amt)+' loaded. Select category and log.','ok','✓');
+}
+
+// NOTIFICATION REMINDERS
+function requestNotifications(){
+  if(!('Notification' in window)){showToast('Notifications not supported on this browser','warn');return;}
+  if(Notification.permission==='granted'){scheduleNotifications();showToast('Reminders already enabled!','ok','🔔');}
+  else if(Notification.permission!=='denied'){
+    Notification.requestPermission().then(function(perm){
+      if(perm==='granted'){scheduleNotifications();showToast('Reminders enabled! You will be notified before due dates.','ok','🔔');}
+      else showToast('Notification permission denied','warn');
+    });
+  } else showToast('Notifications blocked. Enable in browser settings.','warn');
+}
+function scheduleNotifications(){
+  var now=new Date();var dueDay=13;
+  var thisMonthDue=new Date(now.getFullYear(),now.getMonth(),dueDay);
+  var nextDue=now<=thisMonthDue?thisMonthDue:new Date(now.getFullYear(),now.getMonth()+1,dueDay);
+  var daysLeft=Math.ceil((nextDue-now)/864e5);
+  var atomeBal=+DJ('atome_bal',0);
+  if(atomeBal>0&&daysLeft<=7&&daysLeft>0){
+    setTimeout(function(){new Notification('Atome Due Soon!',{body:'₱'+Math.round(atomeBal).toLocaleString()+' due on the 13th. '+daysLeft+' days left. Set aside your payment now.',icon:'',tag:'atome-reminder'});},1000);
+  }
+  var loans=DJ('loans',[]).filter(function(l){return l.active;});
+  loans.forEach(function(l){
+    var lDays=l.due-now.getDate();if(lDays<0)lDays+=30;
+    if(lDays<=3&&lDays>=0){
+      setTimeout(function(){new Notification(l.name+' payment due!',{body:p(l.pay)+' due in '+lDays+' days. Pay on time to protect your CIC.',tag:'loan-'+l.id});},2000);
+    }
+  });
+}
+
 // EXPORT / IMPORT
 function exportData(){
-  var keys=['hist','ef','loans','bills','sp','goals','invests','sideincome','fixedExps','bills_paid','bills_reset_mo','sp_log'];
+  var keys=['hist','ef','loans','bills','sp','goals','invests','sideincome','fixedExps','bills_paid','bills_reset_mo','sp_log','atome_bal','atome_purchases','atome_pay_log','loan_pay_log','challenge_active','atome_limit'];
   var data={profile:CUR,exportDate:new Date().toISOString(),version:'5.6',data:{}};
   keys.forEach(function(k){
     var val=localStorage.getItem('bgv5_'+CUR+'_'+k);
